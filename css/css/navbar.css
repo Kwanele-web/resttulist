@@ -1,0 +1,52 @@
+/* ==========================================================================
+   NAVBAR STYLES (css/navbar.css)
+   Controls the main header layout and the touch-friendly tab buttons.
+   ========================================================================== */
+
+/* The main header bar layout */
+.navbar {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 20px;
+    display: flex;
+    justify-content: space-between; /* Puts name on left, buttons on right */
+    align-items: center;
+    flex-wrap: wrap; /* Allows text to wrap neatly on smaller phone screens */
+}
+
+/* The app logo/title text */
+.navbar h1 {
+    font-size: 28px;
+    font-weight: 600;
+}
+
+/* The wrapper container holding both navigation buttons */
+.nav-buttons {
+    display: flex;
+    gap: 10px;
+}
+
+/* Base style for the interactive tab buttons */
+.nav-btn {
+    padding: 10px 20px;
+    background: rgba(255, 255, 255, 0.2); /* Semi-transparent background */
+    color: white;
+    border: 2px solid white;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 600;
+    transition: all 0.3s ease; /* Makes hover effects feel smooth */
+}
+
+/* Hover/Touch feedback state */
+.nav-btn:hover {
+    background: rgba(255, 255, 255, 0.3);
+    transform: translateY(-2px); /* Slight lift effect */
+}
+
+/* Active State: Highlights the tab you are currently viewing */
+.nav-btn.active {
+    background: white;
+    color: #667eea; /* Flips colors so it looks clearly selected */
+}
