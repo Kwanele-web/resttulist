@@ -1,0 +1,146 @@
+/* ==========================================================================
+   WAITING LIST STYLES (css/waitlist.css)
+   Handles input fields, queue rows, and customer action buttons.
+   ========================================================================== */
+
+/* Layout for input fields: Forms a responsive grid that shrinks to 1 column on phones */
+.form-group {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 15px;
+    margin-bottom: 30px;
+}
+
+/* Custom style for text and number input fields */
+.form-group input {
+    padding: 12px;
+    border: 2px solid #e0e0e0;
+    border-radius: 5px;
+    font-size: 14px;
+    transition: border-color 0.3s ease;
+}
+
+/* Highlights the input field with a purple border when the user taps on it */
+.form-group input:focus {
+    outline: none;
+    border-color: #667eea;
+}
+
+/* Main wrapper container for the customer queue */
+.waiting-list-container {
+    margin: 30px 0;
+}
+
+/* The header text block right above the queue list */
+.list-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    padding-bottom: 15px;
+    border-bottom: 2px solid #e0e0e0;
+}
+
+.list-header h3 {
+    color: #333;
+}
+
+/* Styled counter text showing total live customers */
+.queue-counter {
+    color: #667eea; 
+    font-weight: 600;
+}
+
+/* The actual list element wrapper (ul) holding the items */
+.waiting-list {
+    list-style: none;
+    max-height: 500px;
+    overflow-y: auto; /* Adds a clean scrollbar if the list grows too long */
+}
+
+/* Individual customer item cards (li) */
+.waiting-list li {
+    background: #f8f9fa;
+    padding: 15px;
+    margin-bottom: 10px;
+    border-left: 4px solid #667eea; /* Clean accent bar on the left */
+    border-radius: 5px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition: all 0.3s ease;
+}
+
+/* Subtle background shift and slide effect when hovering/tapping a card */
+.waiting-list li:hover {
+    background: #ecf0f1;
+    transform: translateX(5px);
+}
+
+/* Text alignment style for placeholder when queue is empty */
+.empty-list-msg {
+    text-align: center; 
+    color: #999;
+}
+
+/* Main body details area inside a customer card */
+.order-info {
+    flex-grow: 1;
+}
+
+.order-info p {
+    margin: 5px 0;
+    color: #555;
+    font-size: 14px;
+}
+
+.order-info strong {
+    color: #333;
+}
+
+/* The numbered badge showing customer placement position (e.g., 1, 2, 3) */
+.order-position {
+    background: #667eea;
+    color: white;
+    padding: 8px 12px;
+    border-radius: 50%;
+    font-weight: 600;
+    min-width: 40px;
+    text-align: center;
+    margin-right: 15px;
+}
+
+/* Control wrapper for action buttons on the right side of cards */
+.order-actions {
+    display: flex;
+    gap: 10px;
+}
+
+.order-actions button {
+    padding: 8px 15px;
+    font-size: 12px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+/* Serve Button: Dark green styling with smooth hover feedback */
+.btn-serve {
+    background: #27ae60;
+    color: white;
+}
+
+.btn-serve:hover {
+    background: #229954;
+}
+
+/* Remove Button: Warning red styling with smooth hover feedback */
+.btn-remove {
+    background: #e74c3c;
+    color: white;
+}
+
+.btn-remove:hover {
+    background: #c0392b;
+}
