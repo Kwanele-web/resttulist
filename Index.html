@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Resstulist - Manager</title>
+    
+    <!-- =======================================================
+         MODULAR STYLESHEETS
+         We split the messy styles.css into bite-sized files 
+         ======================================================= -->
+    <link rel="stylesheet" href="css/base.css">
+    <link rel="stylesheet" href="css/components.css">
+    <link rel="stylesheet" href="css/navbar.css">
+    <link rel="stylesheet" href="css/waitlist.css">
+    <link rel="stylesheet" href="css/calculator.css">
+</head>
+<body>
+    <div class="container">
+        
+        <!-- =======================================================
+             TOP NAVIGATION BAR
+             ======================================================= -->
+        <div class="navbar">
+            <h1>🍽️ Resstulist</h1>
+            <div class="nav-buttons">
+                <button class="nav-btn active" onclick="showTab('waitingList')">📋 Waiting List</button>
+                <button class="nav-btn" onclick="showTab('calculator')">🧮 Calculator</button>
+            </div>
+        </div>
+
+        <!-- =======================================================
+             TAB 1: WAITING LIST MANAGER
+             ======================================================= -->
+        <div id="waitingList" class="tab-content active">
+            <h2>Waiting List Manager</h2>
+            
+            <!-- Customer Input Fields -->
+            <div class="form-group">
+                <input type="text" id="customerName" placeholder="Customer Name" required>
+                <input type="number" id="partySize" placeholder="Party Size" min="1" required>
+                <input type="tel" id="phone" placeholder="Phone Number" required>
+                <button class="btn btn-primary" onclick="addCustomer()">Add to List</button>
+            </div>
+
+            <!-- Active Queue Display -->
+            <div class="waiting-list-container">
+                <div class="list-header">
+                    <h3>Current Queue</h3>
+                    <span id="queueCount" class="queue-counter">0 customers</span>
+                </div>
+                <ul class="waiting-list" id="waitingListContainer">
+                    <li class="empty-list-msg">No customers in queue</li>
+                </ul>
+            </div>
+
+            <!-- Analytics Dashboard -->
+            <div class="stats">
+                <div class="stat-box">
+                    <span class="stat-label">Total in Queue</span>
+                    <span class="stat-value" id="totalCustomers">0</span>
+                </div>
+                <div class="stat-box">
+                    <span class="stat-label">Average Wait Time</span>
+                    <span class="stat-value" id="avgWaitTime">0m</span>
+                </div>
+                <div class="stat-box">
+                    <span class="stat-label">Longest Wait</span>
+                    <span class="stat-value" id="longestWait">0m</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- =======================================================
+             TAB 2: ORDER CALCULATOR
+             ======================================================= -->
+        <div id="calculator" class="tab-content">
+            <h2>Order Calculator</h2>
+            
+            <div class="calculator-container">
+                <!-- Food Menu Menu Selection -->
+                <div class="menu-section">
+                    <h3>Select Items</h3>
+                    <div class="menu-items">
+                        <div class="menu-item">
+                            <label>
+                                <input type="checkbox" class="menu-checkbox" data-price="8.99" data-name="Burger" onchange="updateCalculator()">
+                                <span>🍔 Burger</span>
+                            </label>
+                            <span class="item-price">$8.99</span>
+                        </div>
+                        <div class="menu-item">
+                            <label>
+                                <input type="checkbox" class="menu-checkbox" data-price="10.99" data-name="Pizza" onchange="updateCalculator()">
+                                <span>🍕 Pizza</span>
+                            </label>
+                            <span class="item-price">$10.99</span>
+                        </div>
+                        <div class="menu-item">
+                            <label>
+                                <input type="checkbox" class="menu-checkbox" data-price="7.99" data-name="Salad" onchange="updateCalculator()">
+                                <span>🥗 Salad</span>
+                            </label>
+                            <span class="item-price">$7.99</span>
+                        </div>
+                        <div class="menu-item">
+                            <label>
+                                <input type="checkbox" class="menu-checkbox" data-price="9.99" data-name="Pasta" onchange="updateCalculator()">
+                                <span>🍝 Pasta</span>
+                            </label>
+                            <span class="item-price">$9.99</span>
+                        </div>
+                        <div class="menu-item">
+                            <label>
+                                <input type="checkbox" class="menu-checkbox" data-price="2.99" data-name="Soda" onchange="updateCalculator()">
+                                <span>🥤 Soda</span>
+                            </label>
+                            <span class="item-price">$2.99</span>
+                        </div>
+                        <div class="menu-item">
+                            <label>
+                                <input type="checkbox" class="menu-checkbox" data-price="5.99" data-name="Dessert" onchange="updateCalculator()">
+                                <span>🍰 Dessert</span>
+                            </label>
+                            <span class="item-price">$5.99</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Live Billing Display Side -->
+                <div class="calculator-display">
+                    <h3>Order Summary</h3>
+                    <div class="order-summary" id="orderSummary">
+                        <p class="empty-summary-msg">Select items to add to order</p>
+                    </div>
+
+                    <!-- Financial Breakdown Breakdown -->
+                    <div class="calculator-breakdown">
+                        <div class="breakdown-row">
+                            <span>Subtotal:</span>
+                            <span id="subtotal">$0.00</span>
+                        </div>
+                        <div class="breakdown-row">
+                            <span>Tax (10%):</span>
+                            <span id="taxAmount">$0.00</span>
+                        </div>
+                        <div class="breakdown-row total">
+                            <span>TOTAL:</span>
+                            <span id="totalAmount">$0.00</span>
+                        </div>
+                    </div>
+
+                    <!-- Action Control Panel -->
+                    <div class="calculator-buttons">
+                        <button class="btn btn-primary" onclick="printReceipt()">🖨️ Print Receipt</button>
+                        <button class="btn btn-info" onclick="copyTotal()">📋 Copy Total</button>
+                        <button class="btn btn-secondary" onclick="resetCalculator()">↻ Reset</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Core App Logic -->
+    <script src="script.js"></script>
+</body>
+</html>
