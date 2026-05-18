@@ -1,0 +1,60 @@
+/* ==========================================================================
+   BASE STYLES (css/base.css)
+   Contains global resets, fonts, and the main background styling.
+   ========================================================================== */
+
+/* Reset default margins and padding so everything aligns perfectly */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+/* Body setup: Sets up the modern font and the beautiful purple gradient background */
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    min-height: 100vh;
+    padding: 20px;
+}
+
+/* The main container wrapper that holds the entire app interface */
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    background: white;
+    border-radius: 10px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+    overflow: hidden;
+}
+
+/* Tab Content: Controls showing/hiding screens and smooth transitions */
+.tab-content {
+    display: none; /* Hidden by default */
+    padding: 40px;
+    animation: fadeIn 0.3s ease; /* Smooth fade-in effect when switching tabs */
+}
+
+/* When a tab has the 'active' class, show it on screen */
+.tab-content.active {
+    display: block;
+}
+
+/* The animation rule that makes tabs slide/fade in smoothly */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Standard heading style used across both tabs */
+.tab-content h2 {
+    color: #667eea;
+    margin-bottom: 30px;
+    font-size: 24px;
+}
