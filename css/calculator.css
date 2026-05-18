@@ -1,0 +1,154 @@
+/* ==========================================================================
+   CALCULATOR STYLES (css/calculator.css)
+   Handles the food menu selections, pricing layout, and billing displays.
+   ========================================================================== */
+
+/* Main Split Layout: Side-by-side view on desktop screens */
+.calculator-container {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 30px;
+    margin-top: 20px;
+}
+
+/* Individual section titles for Menu and Order Summary */
+.menu-section h3,
+.calculator-display h3 {
+    color: #333;
+    margin-bottom: 20px;
+    font-size: 18px;
+}
+
+/* Vertical stack structure for menu rows */
+.menu-items {
+    display: grid;
+    gap: 15px;
+}
+
+/* Individual Menu Item Card Layout */
+.menu-item {
+    background: #f8f9fa;
+    padding: 12px;
+    border-radius: 5px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+/* Clickable touch label block wrapper that fills the item row width */
+.menu-item label {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    flex-grow: 1;
+    margin-right: 15px;
+}
+
+/* Oversized checkbox item to make mobile clicking easy */
+.menu-item input[type="checkbox"] {
+    margin-right: 10px;
+    cursor: pointer;
+    width: 18px;
+    height: 18px;
+}
+
+/* Clean styling for individual static price markers */
+.item-price {
+    color: #667eea; 
+    font-weight: 600;
+}
+
+/* Main Bill Display Container on the right panel side */
+.calculator-display {
+    background: #f8f9fa;
+    padding: 20px;
+    border-radius: 5px;
+    border: 2px solid #e0e0e0;
+}
+
+/* Live Scrolling Bill Card Window wrapper box */
+.order-summary {
+    background: white;
+    padding: 15px;
+    border-radius: 4px;
+    margin-bottom: 20px;
+    min-height: 100px;
+    max-height: 300px;
+    overflow-y: auto;
+}
+
+/* Standard styling text for item line lists on active receipt */
+.summary-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 8px 0;
+    border-bottom: 1px solid #eee;
+    font-size: 14px;
+}
+
+.summary-item:last-child {
+    border-bottom: none;
+}
+
+.summary-item strong {
+    color: #333;
+}
+
+.summary-item span:last-child {
+    color: #667eea;
+    font-weight: 600;
+}
+
+/* Center placeholder text displayed when no items are selected */
+.empty-summary-msg {
+    color: #999; 
+    text-align: center;
+}
+
+/* Container wrapper grouping monetary rows together */
+.calculator-breakdown {
+    background: white;
+    padding: 20px;
+    border-radius: 4px;
+    margin-bottom: 20px;
+}
+
+/* Rows for subtotal, tax figures, and structural lines */
+.breakdown-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 10px 0;
+    border-bottom: 1px solid #eee;
+    font-size: 14px;
+}
+
+.breakdown-row:last-child {
+    border-bottom: none;
+}
+
+.breakdown-row span:last-child {
+    font-weight: 600;
+    color: #667eea;
+}
+
+/* Total Box Highlight Row: High contrast block displaying overall price tag */
+.breakdown-row.total {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 15px;
+    margin: 10px -20px -20px -20px; /* Forces full edge bleed inside wrapper border */
+    border-radius: 0 0 4px 4px;
+    font-size: 18px;
+    font-weight: 700;
+}
+
+.breakdown-row.total span:last-child {
+    color: white;
+}
+
+/* 3-Column Actions Row Grid holding receipt control action triggers */
+.calculator-buttons {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+}
