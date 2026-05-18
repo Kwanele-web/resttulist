@@ -1,0 +1,164 @@
+/* ==========================================================================
+   SHARED COMPONENTS & RESPONSIVENESS (css/components.css)
+   Handles global buttons, statistics blocks, scrollbars, and mobile screens.
+   ========================================================================== */
+
+/* ==========================================================================
+   1. GLOBAL REUSABLE BUTTON SYSTEM
+   ========================================================================== */
+
+/* Base button properties used by all utility buttons */
+.btn {
+    padding: 12px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* Primary Action Button: Beautiful purple gradient style with a slight pop-up hover effect */
+.btn-primary {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+}
+
+.btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+}
+
+/* Secondary Button: Neutral gray button used for resets */
+.btn-secondary {
+    background: #95a5a6;
+    color: white;
+}
+
+.btn-secondary:hover {
+    background: #7f8c8d;
+}
+
+/* Info Button: Vivid light blue button used for copying text data */
+.btn-info {
+    background: #3498db;
+    color: white;
+}
+
+.btn-info:hover {
+    background: #2980b9;
+}
+
+
+/* ==========================================================================
+   2. LIVE STATS DASHBOARD PANELS
+   ========================================================================== */
+
+/* Grid wrapper for the three live metrics displays */
+.stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 20px;
+    margin-top: 30px;
+}
+
+/* Individual data metrics display card */
+.stat-box {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 20px;
+    border-radius: 5px;
+    text-align: center;
+}
+
+/* Small label identifier text inside a stat card */
+.stat-label {
+    display: block;
+    font-size: 14px;
+    margin-bottom: 10px;
+}
+
+/* Oversized numeric font used to highlight the calculation values */
+.stat-value {
+    display: block;
+    font-size: 32px;
+    font-weight: 700;
+}
+
+
+/* ==========================================================================
+   3. MOBILE SCREEN BREAKPOINTS (Media Queries)
+   Ensures the user interface looks flawless on small phone displays.
+   ========================================================================== */
+
+/* Tablet and Smartphone Layout Adjustments (Widths under 768px) */
+@media (max-width: 768px) {
+    /* Collapses the split view layout into a clean single vertical stack */
+    .calculator-container {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* Small Device Layout Adjustments (Widths under 480px) */
+@media (max-width: 480px) {
+    /* Shrinks the 3-button layout into separate row lines */
+    .calculator-buttons {
+        grid-template-columns: 1fr;
+    }
+    
+    /* Changes top bar to stack the title nicely over the buttons */
+    .navbar {
+        flex-direction: column;
+        gap: 15px;
+    }
+    
+    /* Forces navigation tabs to look perfectly centered */
+    .nav-buttons {
+        width: 100%;
+        justify-content: center;
+    }
+    
+    /* Forces customer inputs into singular rows */
+    .form-group {
+        grid-template-columns: 1fr;
+    }
+    
+    /* Tightens inner padding borders so text fits without clipping */
+    .tab-content {
+        padding: 20px;
+    }
+}
+
+
+/* ==========================================================================
+   4. MODERNISED SCROLLBAR DESIGNS
+   Replaces the thick default browser scrollbars with custom sleek ones.
+   ========================================================================== */
+
+/* Defines width thickness for scrollbar tracks */
+.waiting-list::-webkit-scrollbar,
+.order-summary::-webkit-scrollbar {
+    width: 8px;
+}
+
+/* The structural background trail layout under the thumb track */
+.waiting-list::-webkit-scrollbar-track,
+.order-summary::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 10px;
+}
+
+/* The actual draggable slider indicator pill */
+.waiting-list::-webkit-scrollbar-thumb,
+.order-summary::-webkit-scrollbar-thumb {
+    background: #667eea;
+    border-radius: 10px;
+}
+
+/* Shifts the indicator handle into a darker deep purple when dragged */
+.waiting-list::-webkit-scrollbar-thumb:hover,
+.order-summary::-webkit-scrollbar-thumb:hover {
+    background: #764ba2;
+}
