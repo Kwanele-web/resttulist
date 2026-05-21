@@ -51,7 +51,8 @@ function addCustomer() {
  * Loops through the array and generates the HTML view.
  */
 function updateQueueDisplay() {
-    const listElement = document.getElementById('waitingList');
+    // FIXED: Changed targeting from 'waitingList' to 'queueList' to match updated HTML
+    const listElement = document.getElementById('queueList');
     const counterElement = document.getElementById('queueCount');
     
     // Clear old list rows out before rebuilding
