@@ -5,16 +5,104 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Resstulist - Manager</title>
     
-    <!-- Your existing external stylesheets remain untouched -->
-    <link rel="stylesheet" href="css/base.css">
-    <link rel="stylesheet" href="css/components.css">
-    <link rel="stylesheet" href="css/navbar.css">
-    <link rel="stylesheet" href="css/waitlist.css">
-    <link rel="stylesheet" href="css/calculator.css">
-
-    <!-- Targeted structural overrides to fix layout issues immediately -->
     <style>
-        /* Fixes the Waiting List Inputs to stay in a clean, responsive row */
+        /* ==========================================================================
+           1. CORE BASE STYLES
+           ========================================================================== */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: #f1f5f9;
+            color: #1e293b;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: #ffffff;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+        }
+
+        /* Common Buttons */
+        .btn {
+            padding: 12px 20px;
+            font-size: 14px;
+            font-weight: 600;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-align: center;
+        }
+
+        .btn:hover { opacity: 0.9; }
+        .btn-primary { background: #667eea; color: white; }
+        .btn-secondary { background: #94a3b8; color: white; }
+        .btn-info { background: #3498db; color: white; }
+
+        /* ==========================================================================
+           2. NAVBAR & TAB CONTROLS
+           ========================================================================== */
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px solid #e2e8f0;
+            padding-bottom: 15px;
+            margin-bottom: 25px;
+        }
+
+        .navbar h1 {
+            font-size: 24px;
+            color: #2c3e50;
+        }
+
+        .nav-buttons {
+            display: flex;
+            gap: 10px;
+        }
+
+        .nav-btn {
+            padding: 10px 18px;
+            background: #e2e8f0;
+            border: none;
+            border-radius: 6px;
+            font-weight: 600;
+            color: #64748b;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .nav-btn.active, .nav-btn:hover {
+            background: #667eea;
+            color: white;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .tab-content h2 {
+            margin-bottom: 20px;
+            color: #2c3e50;
+            font-size: 20px;
+        }
+
+        /* ==========================================================================
+           3. TARGETED INPUT ROW FIX (WAITING LIST)
+           ========================================================================== */
         .form-group {
             display: flex;
             flex-wrap: wrap;
@@ -25,6 +113,7 @@
             border-radius: 8px;
             border: 1px solid #e2e8f0;
         }
+
         .form-group input {
             flex: 1;
             min-width: 150px;
@@ -34,22 +123,130 @@
             font-size: 14px;
             outline: none;
         }
+
         .form-group input:focus {
             border-color: #667eea;
         }
+
         .form-group .btn {
             flex: 1;
             min-width: 150px;
             white-space: nowrap;
         }
 
-        /* Fixes the Calculator layout to stay side-by-side on desktop views */
+        /* ==========================================================================
+           4. QUEUE LIST & STATS CARDS
+           ========================================================================== */
+        .waiting-list-container {
+            margin: 25px 0;
+        }
+
+        .list-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .waiting-list {
+            list-style: none;
+            max-height: 400px;
+            overflow-y: auto;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 10px;
+            background: #ffffff;
+        }
+
+        .waiting-list li {
+            background: #f8f9fa;
+            padding: 15px;
+            margin-bottom: 10px;
+            border-left: 4px solid #667eea;
+            border-radius: 6px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .empty-list-msg {
+            text-align: center;
+            color: #94a3b8;
+            padding: 30px 0;
+            font-style: italic;
+        }
+
+        .order-info strong {
+            color: #1e293b;
+            font-size: 15px;
+            display: block;
+            margin-bottom: 3px;
+        }
+
+        .order-info p {
+            margin: 2px 0;
+            color: #64748b;
+            font-size: 13px;
+        }
+
+        .order-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .order-actions button {
+            padding: 8px 14px;
+            font-size: 12px;
+            font-weight: 600;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            color: white;
+        }
+
+        .btn-serve { background: #27ae60; }
+        .btn-remove { background: #e74c3c; }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 15px;
+            margin-top: 25px;
+        }
+
+        .stat-box {
+            background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+            color: white;
+            padding: 18px;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .stat-label {
+            display: block;
+            font-size: 13px;
+            margin-bottom: 6px;
+            color: #cbd5e1;
+            text-transform: uppercase;
+        }
+
+        .stat-value {
+            display: block;
+            font-size: 26px;
+            font-weight: 700;
+            color: #3498db;
+        }
+
+        /* ==========================================================================
+           5. TARGETED SIDE-BY-SIDE SIDEBAR FIX (CALCULATOR)
+           ========================================================================== */
         .calculator-container {
             display: grid;
             grid-template-columns: 1.2fr 1fr;
             gap: 25px;
             margin-top: 15px;
         }
+
         .menu-section, .calculator-display {
             background: #f8f9fa;
             padding: 20px;
@@ -57,13 +254,124 @@
             border: 1px solid #e2e8f0;
         }
 
-        /* Mobile layout optimization so fields stack correctly on small displays */
+        .menu-section h3, .calculator-display h3 {
+            color: #2c3e50;
+            margin-bottom: 15px;
+            font-size: 16px;
+            font-weight: 600;
+        }
+
+        .menu-items {
+            display: grid;
+            gap: 10px;
+        }
+
+        .menu-item {
+            background: #ffffff;
+            padding: 12px 15px;
+            border-radius: 6px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border: 1px solid #e2e8f0;
+        }
+
+        .menu-item label {
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+            flex-grow: 1;
+        }
+
+        .menu-item input[type="checkbox"] {
+            margin-right: 12px;
+            width: 18px;
+            height: 18px;
+        }
+
+        .item-price {
+            color: #667eea; 
+            font-weight: 600;
+        }
+
+        .order-summary {
+            background: #ffffff;
+            padding: 12px;
+            border-radius: 6px;
+            margin-bottom: 15px;
+            min-height: 80px;
+            border: 1px solid #e2e8f0;
+        }
+
+        .summary-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 6px 0;
+            border-bottom: 1px solid #f1f5f9;
+            font-size: 14px;
+        }
+
+        .empty-summary-msg {
+            color: #94a3b8; 
+            text-align: center;
+            padding: 20px 0;
+            font-style: italic;
+        }
+
+        .calculator-breakdown {
+            background: #ffffff;
+            padding: 15px;
+            border-radius: 6px;
+            margin-bottom: 15px;
+            border: 1px solid #e2e8f0;
+        }
+
+        .breakdown-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid #f1f5f9;
+            font-size: 14px;
+        }
+
+        .breakdown-row.total {
+            background: #2c3e50;
+            color: white;
+            padding: 12px;
+            border-radius: 6px;
+            font-size: 16px;
+            font-weight: 700;
+            margin-top: 8px;
+        }
+
+        .breakdown-row.total span:last-child { color: #3498db; }
+
+        .calculator-buttons {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+
+        /* ==========================================================================
+           6. RESPONSIVE MOBILE OVERRIDES
+           ========================================================================== */
         @media (max-width: 768px) {
             .calculator-container {
                 grid-template-columns: 1fr;
             }
             .form-group input, .form-group .btn {
                 flex: 1 1 100%;
+            }
+            .navbar {
+                flex-direction: column;
+                gap: 15px;
+                text-align: center;
+            }
+        }
+
+        @media (max-width: 520px) {
+            .calculator-buttons {
+                grid-template-columns: 1fr;
             }
         }
     </style>
@@ -96,7 +404,6 @@
                     <h3>Current Queue</h3>
                     <span style="color: #667eea; font-weight: 600;"><span id="queueCount">0</span> customers</span>
                 </div>
-                <!-- Unique list ID matching the Javascript logic updates -->
                 <ul class="waiting-list" id="queueList">
                     <li class="empty-list-msg">No customers currently in the queue.</li>
                 </ul>
@@ -201,6 +508,7 @@
         </div>
     </div>
 
+    <!-- Linked script files for features remain active -->
     <script src="js/tabs.js"></script>
     <script src="js/waitlist.js"></script>
     <script src="js/calculator.js"></script>
