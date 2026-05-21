@@ -5,11 +5,73 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Resstulist - Manager</title>
     
-    <link rel="stylesheet" href="style.css.css">
+    <!-- Your existing external stylesheets remain untouched -->
+    <link rel="stylesheet" href="css/base.css">
+    <link rel="stylesheet" href="css/components.css">
+    <link rel="stylesheet" href="css/navbar.css">
+    <link rel="stylesheet" href="css/waitlist.css">
+    <link rel="stylesheet" href="css/calculator.css">
+
+    <!-- Targeted structural overrides to fix layout issues immediately -->
+    <style>
+        /* Fixes the Waiting List Inputs to stay in a clean, responsive row */
+        .form-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-bottom: 25px;
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            border: 1px solid #e2e8f0;
+        }
+        .form-group input {
+            flex: 1;
+            min-width: 150px;
+            padding: 12px;
+            border: 1px solid #cbd5e1;
+            border-radius: 6px;
+            font-size: 14px;
+            outline: none;
+        }
+        .form-group input:focus {
+            border-color: #667eea;
+        }
+        .form-group .btn {
+            flex: 1;
+            min-width: 150px;
+            white-space: nowrap;
+        }
+
+        /* Fixes the Calculator layout to stay side-by-side on desktop views */
+        .calculator-container {
+            display: grid;
+            grid-template-columns: 1.2fr 1fr;
+            gap: 25px;
+            margin-top: 15px;
+        }
+        .menu-section, .calculator-display {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            border: 1px solid #e2e8f0;
+        }
+
+        /* Mobile layout optimization so fields stack correctly on small displays */
+        @media (max-width: 768px) {
+            .calculator-container {
+                grid-template-columns: 1fr;
+            }
+            .form-group input, .form-group .btn {
+                flex: 1 1 100%;
+            }
+        }
+    </style>
 </head>
 <body>
     <div class="container">
         
+        <!-- Navbar Header Area -->
         <div class="navbar">
             <h1>🍽️ Resstulist</h1>
             <div class="nav-buttons">
@@ -18,7 +80,7 @@
             </div>
         </div>
 
-        <!-- Main tab container uses id="waitingList" -->
+        <!-- Waiting List Tab Panel -->
         <div id="waitingList" class="tab-content active">
             <h2>Waiting List Manager.</h2>
             
@@ -34,7 +96,7 @@
                     <h3>Current Queue</h3>
                     <span style="color: #667eea; font-weight: 600;"><span id="queueCount">0</span> customers</span>
                 </div>
-                <!-- FIXED: Changed ID from "waitingList" to "queueList" to prevent JS crashing -->
+                <!-- Unique list ID matching the Javascript logic updates -->
                 <ul class="waiting-list" id="queueList">
                     <li class="empty-list-msg">No customers currently in the queue.</li>
                 </ul>
@@ -56,6 +118,7 @@
             </div>
         </div>
 
+        <!-- Calculator Tab Panel -->
         <div id="calculator" class="tab-content">
             <h2>Order Calculator</h2>
             
