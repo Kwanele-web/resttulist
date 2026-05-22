@@ -47,10 +47,24 @@
         .btn-primary { background: #667eea; color: white; }
         .btn-secondary { background: #94a3b8; color: white; }
         .btn-info { background: #3498db; color: white; }
+        .btn-success { background: #27ae60; color: white; }
 
         /* ==========================================================================
            2. NAVBAR & TAB CONTROLS
            ========================================================================== */
+        .brand-header {
+            text-align: right; 
+            padding-bottom: 6px; 
+            font-size: 11px; 
+            color: #94a3b8; 
+            font-weight: bold; 
+            letter-spacing: 0.8px;
+        }
+        
+        .brand-header span {
+            color: #667eea;
+        }
+
         .navbar {
             display: flex;
             justify-content: space-between;
@@ -101,7 +115,7 @@
         }
 
         /* ==========================================================================
-           3. TARGETED INPUT ROW FIX (WAITING LIST)
+           3. INPUT ROW (WAITING LIST)
            ========================================================================== */
         .form-group {
             display: flex;
@@ -238,7 +252,46 @@
         }
 
         /* ==========================================================================
-           5. TARGETED SIDE-BY-SIDE SIDEBAR FIX (CALCULATOR)
+           5. QR CODE LINK SECTION
+           ========================================================================== */
+        .qr-section {
+            background: #f8f9fa;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 20px;
+            margin-top: 25px;
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .qr-placeholder {
+            width: 100px;
+            height: 100px;
+            background: #cbd5e1;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 11px;
+            text-align: center;
+            color: #475569;
+            font-weight: bold;
+            border: 2px dashed #94a3b8;
+        }
+
+        .qr-info h4 {
+            color: #2c3e50;
+            margin-bottom: 5px;
+        }
+
+        .qr-info p {
+            font-size: 13px;
+            color: #64748b;
+        }
+
+        /* ==========================================================================
+           6. CALCULATOR & PAYMENT SETUPS
            ========================================================================== */
         .calculator-container {
             display: grid;
@@ -346,6 +399,36 @@
 
         .breakdown-row.total span:last-child { color: #3498db; }
 
+        /* Payment Form Elements */
+        .payment-input-group {
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px dashed #cbd5e1;
+        }
+
+        .payment-input-group label {
+            display: block;
+            font-size: 13px;
+            font-weight: 600;
+            color: #475569;
+            margin-bottom: 6px;
+        }
+
+        .payment-row {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 12px;
+        }
+
+        .payment-row input {
+            flex: 1;
+            padding: 10px;
+            border: 1px solid #cbd5e1;
+            border-radius: 6px;
+            font-size: 14px;
+            outline: none;
+        }
+
         .calculator-buttons {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -353,7 +436,7 @@
         }
 
         /* ==========================================================================
-           6. RESPONSIVE MOBILE OVERRIDES
+           7. RESPONSIVE MOBILE OVERRIDES
            ========================================================================== */
         @media (max-width: 768px) {
             .calculator-container {
@@ -365,6 +448,10 @@
             .navbar {
                 flex-direction: column;
                 gap: 15px;
+                text-align: center;
+            }
+            .qr-section {
+                flex-direction: column;
                 text-align: center;
             }
         }
@@ -379,6 +466,11 @@
 <body>
     <div class="container">
         
+        <!-- Company Brand Attribution -->
+        <div class="brand-header">
+            POWERED BY <span>NATURI WEB SOLUTIONS</span>
+        </div>
+
         <!-- Navbar Header Area -->
         <div class="navbar">
             <h1>🍽️ Resstulist</h1>
@@ -390,11 +482,11 @@
 
         <!-- Waiting List Tab Panel -->
         <div id="waitingList" class="tab-content active">
-            <h2>Waiting List Manager.</h2>
+            <h2>Waiting List Manager</h2>
             
             <div class="form-group">
                 <input type="text" id="custName" placeholder="Customer Name" required>
-                <input type="number" id="partySize" placeholder="Party Size" min="1" required>
+                <input type="number" id="partySize" placeholder="Number of Guests" min="1" required>
                 <input type="tel" id="contactNo" placeholder="Phone Number" required>
                 <button class="btn btn-primary" onclick="addCustomer()">Add to List</button>
             </div>
@@ -402,25 +494,35 @@
             <div class="waiting-list-container">
                 <div class="list-header">
                     <h3>Current Queue</h3>
-                    <span style="color: #667eea; font-weight: 600;"><span id="queueCount">0</span> customers</span>
+                    <span style="color: #667eea; font-weight: 600;"><span id="queueCount">0</span> parties live</span>
                 </div>
                 <ul class="waiting-list" id="queueList">
                     <li class="empty-list-msg">No customers currently in the queue.</li>
                 </ul>
             </div>
 
+            <!-- Stats Panels with Table Queues Intact -->
             <div class="stats">
                 <div class="stat-box">
-                    <span class="stat-label">Total Today</span>
+                    <span class="stat-label">Total Customers Today</span>
                     <span class="stat-value" id="totalCustToday">0</span>
                 </div>
                 <div class="stat-box">
-                    <span class="stat-label">In Queue Now</span>
+                    <span class="stat-label">Table Queues</span>
                     <span class="stat-value" id="currentQueue">0</span>
                 </div>
                 <div class="stat-box">
                     <span class="stat-label">Average Wait Time</span>
                     <span class="stat-value" id="avgWaitTime">0 min</span>
+                </div>
+            </div>
+
+            <!-- QR Code Section for Customers -->
+            <div class="qr-section">
+                <div class="qr-placeholder">QR CODE<br>COMING SOON</div>
+                <div class="qr-info">
+                    <h4>Customer Remote Check-In</h4>
+                    <p>Soon, customers will be able to scan this QR code to monitor their exact position in line and view live wait times right from home or their car.</p>
                 </div>
             </div>
         </div>
@@ -494,8 +596,21 @@
                             <span id="taxPrice">R 0.00</span>
                         </div>
                         <div class="breakdown-row total">
-                            <span>TOTAL:</span>
+                            <span>TOTAL DUE:</span>
                             <span id="totalPrice">R 0.00</span>
+                        </div>
+
+                        <!-- Cash Input & Change Breakdown Fields -->
+                        <div class="payment-input-group">
+                            <label for="cashPaid">Amount Tendered / Paid:</label>
+                            <div class="payment-row">
+                                <input type="number" id="cashPaid" placeholder="e.g. 200" min="0" oninput="calculateChange()">
+                                <button class="btn btn-success" onclick="calculateChange()">Calculate Change</button>
+                            </div>
+                            <div class="breakdown-row" style="font-weight: 600; color: #e74c3c;">
+                                <span>Change Due:</span>
+                                <span id="changeDue">R 0.00</span>
+                            </div>
                         </div>
                     </div>
 
@@ -508,10 +623,8 @@
         </div>
     </div>
 
-    <!-- Linked script files for features remain active -->
     <script src="js/tabs.js"></script>
     <script src="js/waitlist.js"></script>
     <script src="js/calculator.js"></script>
 </body>
 </html>
-ht 
