@@ -15,8 +15,9 @@ function showTab(tabName) {
     // 3. Make the selected tab screen visible
     document.getElementById(tabName).classList.add('active');
 
-    // 4. Highlight the specific navigation button that was just clicked
-    if (event && event.target) {
-        event.target.classList.add('active');
+    // 4. Highlight the correct button cleanly using its attribute
+    const targetBtn = Array.from(navBtns).find(btn => btn.getAttribute('onclick').includes(tabName));
+    if (targetBtn) {
+        targetBtn.classList.add('active');
     }
 }
