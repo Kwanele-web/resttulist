@@ -1,4 +1,14 @@
 /* ==========================================================================
+       if (waitingList.length === 0) {
+        listElement.innerHTML = `<li class="empty-list-msg">No customers currently in the queue.</li>`;
+        updateMetrics();
+        return;
+    }
+
+    // Generate functional rows for each customer card object
+    waitingList.forEach((customer, index) => {
+        const li = document.createElement('li');
+        /* ==========================================================================
    WAITING LIST MANAGER LOGIC (js/waitlist.js)
    Handles the queue array, live metrics tracking, and rendering rows.
    ========================================================================== */
@@ -25,18 +35,22 @@ function addCustomer() {
         return;
     }
 
+    const guestCount = parseInt(sizeInput.value);
+
     // Build the clean customer object mapping data keys
     const customer = {
         id: Date.now(), // Unique identifier based on execution timestamp
         name: nameInput.value.trim(),
-        size: parseInt(sizeInput.value),
+        size: guestCount,
         contact: contactInput.value.trim(),
         joinedAt: new Date() // Logs exact entry time
     };
 
     // Push into our live array tracking setup
     waitingList.push(customer);
-    totalCustomersToday++;
+    
+    // UPGRADED: Counts individual heads inside the party toward the total customer count
+    totalCustomersToday += guestCount;
 
     // Clear input forms immediately for the next entry
     nameInput.value = '';
@@ -51,7 +65,6 @@ function addCustomer() {
  * Loops through the array and generates the HTML view.
  */
 function updateQueueDisplay() {
-    // FIXED: Changed targeting from 'waitingList' to 'queueList' to match updated HTML
     const listElement = document.getElementById('queueList');
     const counterElement = document.getElementById('queueCount');
     
@@ -73,7 +86,6 @@ function updateQueueDisplay() {
         const li = document.createElement('li');
         
         li.innerHTML = `
-            <div class="order-position">${index + 1}</div>
             <div class="order-info">
                 <strong>${customer.name} (Party of ${customer.size})</strong>
                 <p>📞 Contact: ${customer.contact}</p>
