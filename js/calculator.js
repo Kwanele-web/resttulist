@@ -1,10 +1,11 @@
-/* ==========================================================================
-   ORDER CALCULATOR LOGIC (js/calculator.js)
-   Handles price matrix mapping, totals, and invoice slip generators.
-   ========================================================================== */
 
-// Food items price matrix (Matches the ID values listed in index.html exactly)
-const menuPrices = {
+// Global tracking counters for financial performance
+let orderCounter = 1;
+let globalRevenue = 0;
+let globalOrdersCompleted = 0;
+
+// Centralized pricing architecture
+const MENU_PRICES = {
     burger: 45.00,
     pizza: 75.00,
     chips: 20.00,
@@ -13,140 +14,170 @@ const menuPrices = {
     dessert: 30.00
 };
 
-// Fixed local tax percentage setup (15% VAT for South African standards)
-const TAX_RATE = 0.15;
-
 /**
- * Sweeps all checkboxes and sums up the live active totals.
+ * Calculates current selected items breakdown and updates UI
  */
 function calculateOrder() {
-    const summaryElement = document.getElementById('orderSummary');
     let subtotal = 0;
-    
-    // Clear the old receipt layout
-    summaryElement.innerHTML = '';
+    const summaryContainer = document.getElementById('orderSummary');
+    summaryContainer.innerHTML = ''; // Clear prior entries
 
-    // Track if any boxes are checked
     let itemsSelected = false;
 
-    // Loop through every menu key in our price list object
-    for (const item in menuPrices) {
+    // Loop through menu keys to evaluate active checkmarks
+    for (const item in MENU_PRICES) {
         const checkbox = document.getElementById(item);
-        
-        // If the box is checked by the user, add it to the active invoice bill
         if (checkbox && checkbox.checked) {
             itemsSelected = true;
-            const itemPrice = menuPrices[item];
-            subtotal += itemPrice;
+            const price = MENU_PRICES[item];
+            subtotal += price;
 
-            // Capitalise the item name for clean receipt formatting
-            const cleanName = item.charAt(0).toUpperCase() + item.slice(1);
-
-            // Create a row element for this menu selection
+            // Generate clean UI summary item row
             const row = document.createElement('div');
             row.className = 'summary-item';
-            row.innerHTML = `<strong>${cleanName}</strong> <span>R ${itemPrice.toFixed(2)}</span>`;
-            
-            summaryElement.appendChild(row);
+            row.innerHTML = `
+                <span>${checkbox.nextElementSibling.innerText}</span>
+                <span class="item-price">R ${price.toFixed(2)}</span>
+            `;
+            summaryContainer.appendChild(row);
         }
     }
 
-    // If nothing is selected, show the default placeholder message
+    // Fallback display if summary dashboard is bare
     if (!itemsSelected) {
-        summaryElement.innerHTML = `<p class="empty-summary-msg">No items selected yet.</p>`;
+        summaryContainer.innerHTML = '<p class="empty-summary-msg">No items selected yet.</p>';
     }
 
-    // Run final tax and overall total mathematics equations
-    const taxAmount = subtotal * TAX_RATE;
-    const overallTotal = subtotal + taxAmount;
+    // Process exact VAT metrics (South African standard: 15%)
+    const vatAmount = subtotal * 0.15;
+    const totalDue = subtotal + vatAmount;
 
-    // Push the calculated values out to update the display text labels
-    document.getElementById('subtotalPrice').textContent = `R ${subtotal.toFixed(2)}`;
-    document.getElementById('taxPrice').textContent = `R ${taxAmount.toFixed(2)}`;
-    document.getElementById('totalPrice').textContent = `R ${overallTotal.toFixed(2)}`;
+    // Update financial fields in real-time
+    document.getElementById('subtotalPrice').innerText = `R ${subtotal.toFixed(2)}`;
+    document.getElementById('taxPrice').innerText = `R ${vatAmount.toFixed(2)}`;
+    document.getElementById('totalPrice').innerText = `R ${totalDue.toFixed(2)}`;
 
-    // Re-trigger change calculation automatically if an item is checked/unchecked
+    // Re-evaluate change calculations seamlessly if cash was already input
     calculateChange();
 }
 
 /**
- * NEW: Calculates the change due based on cash paid vs overall total.
+ * Computes difference between cash tendered and current total due
  */
 function calculateChange() {
-    const totalText = document.getElementById('totalPrice').textContent;
-    const overallTotal = parseFloat(totalText.replace('R ', '')) || 0;
-    
-    const cashInput = document.getElementById('cashPaid');
-    const cashPaid = parseFloat(cashInput.value) || 0;
-    
-    let change = 0;
-    if (cashPaid > overallTotal) {
-        change = cashPaid - overallTotal;
+    const totalText = document.getElementById('totalPrice').innerText;
+    const totalDue = parseFloat(totalText.replace('R ', '')) || 0;
+    const cashPaidInput = document.getElementById('cashPaid').value;
+    const cashPaid = parseFloat(cashPaidInput) || 0;
+
+    let changeDue = 0;
+    if (cashPaid > totalDue) {
+        changeDue = cashPaid - totalDue;
     }
-    
-    document.getElementById('changeDue').textContent = `R ${change.toFixed(2)}`;
+
+    document.getElementById('changeDue').innerText = `R ${changeDue.toFixed(2)}`;
 }
 
 /**
- * UPGRADED: Resets all checkboxes and wipes the receipt summaries completely clean.
+ * Links order to queue structure and updates business metrics
  */
-function resetCalculator() {
-    for (const item in menuPrices) {
-        const checkbox = document.getElementById(item);
-        if (checkbox) {
-            checkbox.checked = false;
-        }
-    }
-    
-    // Clear out the new cash input field and reset change label text
-    const cashInput = document.getElementById('cashPaid');
-    if (cashInput) cashInput.value = '';
-    document.getElementById('changeDue').textContent = `R 0.00`;
-    
-    // Fire calculation function to refresh the blank defaults
-    calculateOrder();
-}
+function sendToKitchen() {
+    const totalText = document.getElementById('totalPrice').innerText;
+    const totalDue = parseFloat(totalText.replace('R ', '')) || 0;
 
-/**
- * UPGRADED: Compiles the text from the receipt and copies it directly to the phone clipboard.
- */
-function copyReceipt() {
-    let receiptText = "=== RESTTULIST RECEIPT ===\n";
-    let itemsSelected = false;
-
-    for (const item in menuPrices) {
-        const checkbox = document.getElementById(item);
-        if (checkbox && checkbox.checked) {
-            itemsSelected = true;
-            const cleanName = item.charAt(0).toUpperCase() + item.slice(1);
-            receiptText += `${cleanName}: R ${menuPrices[item].toFixed(2)}\n`;
-        }
-    }
-
-    if (!itemsSelected) {
-        alert("Your order summary is empty. Select items before copying.");
+    // Guard rail validation rule: block bare orders
+    if (totalDue === 0) {
+        alert('Please select at least one item from the menu before sending to the kitchen.');
         return;
     }
 
-    // Append calculated monetary totals to the bottom text string block
-    const subtotal = parseFloat(document.getElementById('subtotalPrice').textContent.replace('R ', ''));
-    const tax = parseFloat(document.getElementById('taxPrice').textContent.replace('R ', ''));
-    const total = parseFloat(document.getElementById('totalPrice').textContent.replace('R ', ''));
+    const cashInput = document.getElementById('cashPaid').value;
+    const cashPaid = parseFloat(cashInput) || 0;
+
+    // Operational rule: clear payment details prior to submitting
+    if (cashPaid < totalDue) {
+        alert('Amount Tendered must be equal to or greater than the Total Due before processing.');
+        return;
+    }
+
+    // Capture customer designation metadata from dropdown links
+    const customerSelect = document.getElementById('activeCustomerSelect');
+    const assignedCustomerId = customerSelect.value;
+    let customerName = "Walk-in Customer";
+
+    if (assignedCustomerId) {
+        // Safe cross-file lookup extraction inside waitlist.js storage
+        const targetCustomer = waitingList.find(c => c.id == assignedCustomerId);
+        if (targetCustomer) {
+            customerName = targetCustomer.name;
+        }
+    }
+
+    // Extract dynamic listing array of items purchased
+    let selectedItemsList = [];
+    for (const item in MENU_PRICES) {
+        const cb = document.getElementById(item);
+        if (cb && cb.checked) {
+            selectedItemsList.push(cb.nextElementSibling.innerText);
+        }
+    }
+
+    const subtotalText = document.getElementById('subtotalPrice').innerText;
+    const taxText = document.getElementById('taxPrice').innerText;
+    const changeText = document.getElementById('changeDue').innerText;
+
+    // Bundle financial blueprint structure safely
+    const orderReceiptData = {
+        orderNum: orderCounter,
+        customerName: customerName,
+        items: selectedItemsList,
+        subtotal: subtotalText,
+        vat: taxText,
+        total: totalText,
+        cash: `R ${cashPaid.toFixed(2)}`,
+        change: changeText,
+        timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+    };
+
+    // Increment financial dashboard tallies
+    globalRevenue += totalDue;
+    globalOrdersCompleted += 1;
+    orderCounter += 1;
+
+    // Cross-file processing task: append receipt data packet structure into waiting list UI
+    if (typeof attachReceiptToQueue === "function") {
+        attachReceiptToQueue(assignedCustomerId, orderReceiptData);
+    }
+
+    // Sync financial metrics to metrics dashboard views
+    updateFinancialDOM();
+
+    // Reset current working layout fields clean for subsequent rounds
+    resetCalculator();
     
-    const cashPaid = parseFloat(document.getElementById('cashPaid').value) || 0;
-    const changeDue = parseFloat(document.getElementById('changeDue').textContent.replace('R ', ''));
+    // Auto-navigate user to view incoming live ticket updates on waitlist
+    if (typeof showTab === "function") {
+        showTab('waitingList');
+    }
+}
 
-    receiptText += "-------------------------\n";
-    receiptText += `Subtotal: R ${subtotal.toFixed(2)}\n`;
-    receiptText += `VAT (15%): R ${tax.toFixed(2)}\n`;
-    receiptText += `TOTAL DUE: R ${total.toFixed(2)}\n`;
-    receiptText += `Cash Tendered: R ${cashPaid.toFixed(2)}\n`;
-    receiptText += `Change Returned: R ${changeDue.toFixed(2)}\n`;
-    receiptText += "=========================\nThank you for your patronage!\n";
-    receiptText += "Powered by Naturi Web Solutions";
+/**
+ * Refreshes management dashboard blocks
+ */
+function updateFinancialDOM() {
+    document.getElementById('totalRevenue').innerText = `R ${globalRevenue.toFixed(2)}`;
+    document.getElementById('ordersCompleted').innerText = globalOrdersCompleted;
+}
 
-    // Write the raw compiled text directly into the system clipboard memory bank
-    navigator.clipboard.writeText(receiptText)
-        .then(() => alert("Receipt text successfully copied to clipboard!"))
-        .catch(err => alert("Error copying text: " + err));
+/**
+ * Flushes active form metrics back to zero clean slate
+ */
+function resetCalculator() {
+    for (const item in MENU_PRICES) {
+        const cb = document.getElementById(item);
+        if (cb) cb.checked = false;
+    }
+    document.getElementById('cashPaid').value = '';
+    document.getElementById('activeCustomerSelect').selectedIndex = 0;
+    calculateOrder();
 }
