@@ -64,10 +64,31 @@ function calculateOrder() {
     document.getElementById('subtotalPrice').textContent = `R ${subtotal.toFixed(2)}`;
     document.getElementById('taxPrice').textContent = `R ${taxAmount.toFixed(2)}`;
     document.getElementById('totalPrice').textContent = `R ${overallTotal.toFixed(2)}`;
+
+    // Re-trigger change calculation automatically if an item is checked/unchecked
+    calculateChange();
 }
 
 /**
- * Resets all checkboxes and wipes the receipt summaries completely clean.
+ * NEW: Calculates the change due based on cash paid vs overall total.
+ */
+function calculateChange() {
+    const totalText = document.getElementById('totalPrice').textContent;
+    const overallTotal = parseFloat(totalText.replace('R ', '')) || 0;
+    
+    const cashInput = document.getElementById('cashPaid');
+    const cashPaid = parseFloat(cashInput.value) || 0;
+    
+    let change = 0;
+    if (cashPaid > overallTotal) {
+        change = cashPaid - overallTotal;
+    }
+    
+    document.getElementById('changeDue').textContent = `R ${change.toFixed(2)}`;
+}
+
+/**
+ * UPGRADED: Resets all checkboxes and wipes the receipt summaries completely clean.
  */
 function resetCalculator() {
     for (const item in menuPrices) {
@@ -76,12 +97,18 @@ function resetCalculator() {
             checkbox.checked = false;
         }
     }
+    
+    // Clear out the new cash input field and reset change label text
+    const cashInput = document.getElementById('cashPaid');
+    if (cashInput) cashInput.value = '';
+    document.getElementById('changeDue').textContent = `R 0.00`;
+    
     // Fire calculation function to refresh the blank defaults
     calculateOrder();
 }
 
 /**
- * Compiles the text from the receipt and copies it directly to the phone clipboard.
+ * UPGRADED: Compiles the text from the receipt and copies it directly to the phone clipboard.
  */
 function copyReceipt() {
     let receiptText = "=== RESTTULIST RECEIPT ===\n";
@@ -105,12 +132,18 @@ function copyReceipt() {
     const subtotal = parseFloat(document.getElementById('subtotalPrice').textContent.replace('R ', ''));
     const tax = parseFloat(document.getElementById('taxPrice').textContent.replace('R ', ''));
     const total = parseFloat(document.getElementById('totalPrice').textContent.replace('R ', ''));
+    
+    const cashPaid = parseFloat(document.getElementById('cashPaid').value) || 0;
+    const changeDue = parseFloat(document.getElementById('changeDue').textContent.replace('R ', ''));
 
     receiptText += "-------------------------\n";
     receiptText += `Subtotal: R ${subtotal.toFixed(2)}\n`;
     receiptText += `VAT (15%): R ${tax.toFixed(2)}\n`;
-    receiptText += `TOTAL: R ${total.toFixed(2)}\n`;
-    receiptText += "=========================\nThank you for your patronage!";
+    receiptText += `TOTAL DUE: R ${total.toFixed(2)}\n`;
+    receiptText += `Cash Tendered: R ${cashPaid.toFixed(2)}\n`;
+    receiptText += `Change Returned: R ${changeDue.toFixed(2)}\n`;
+    receiptText += "=========================\nThank you for your patronage!\n";
+    receiptText += "Powered by Naturi Web Solutions";
 
     // Write the raw compiled text directly into the system clipboard memory bank
     navigator.clipboard.writeText(receiptText)
