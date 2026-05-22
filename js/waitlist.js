@@ -1,143 +1,235 @@
-/* ==========================================================================
-       if (waitingList.length === 0) {
-        listElement.innerHTML = `<li class="empty-list-msg">No customers currently in the queue.</li>`;
-        updateMetrics();
-        return;
-    }
-
-    // Generate functional rows for each customer card object
-    waitingList.forEach((customer, index) => {
-        const li = document.createElement('li');
-        /* ==========================================================================
-   WAITING LIST MANAGER LOGIC (js/waitlist.js)
-   Handles the queue array, live metrics tracking, and rendering rows.
-   ========================================================================== */
-
-// Main array to hold all live queue objects
+// Internal data storage array for managing customer queue objects
 let waitingList = [];
 
-// Global statistics counters (preserved during the session)
-let totalCustomersToday = 0;
-let totalWaitTime = 0;
-let servedCount = 0;
-
 /**
- * Adds a new customer to the array and updates the display.
+ * Adds a new party to the queue system array and builds out UI views
  */
 function addCustomer() {
     const nameInput = document.getElementById('custName');
     const sizeInput = document.getElementById('partySize');
     const contactInput = document.getElementById('contactNo');
 
-    // Simple validation rule: Block empty fields
-    if (!nameInput.value || !sizeInput.value || !contactInput.value) {
-        alert("Please fill in all customer details before adding.");
+    const name = nameInput.value.trim();
+    const size = parseInt(sizeInput.value);
+    const contact = contactInput.value.trim();
+
+    // Field integrity validations
+    if (!name || !size || !contact) {
+        alert('Please fill out all fields correctly before adding a customer.');
         return;
     }
 
-    const guestCount = parseInt(sizeInput.value);
-
-    // Build the clean customer object mapping data keys
-    const customer = {
-        id: Date.now(), // Unique identifier based on execution timestamp
-        name: nameInput.value.trim(),
-        size: guestCount,
-        contact: contactInput.value.trim(),
-        joinedAt: new Date() // Logs exact entry time
+    // Build the data object structure
+    const customerObj = {
+        id: Date.now(), // Unique ID milestone tag
+        name: name,
+        size: size,
+        contact: contact,
+        receipt: null   // Holds order data packet when sent from calculator
     };
 
-    // Push into our live array tracking setup
-    waitingList.push(customer);
-    
-    // UPGRADED: Counts individual heads inside the party toward the total customer count
-    totalCustomersToday += guestCount;
+    // Push into global cache array
+    waitingList.push(customerObj);
 
-    // Clear input forms immediately for the next entry
+    // Flush form inputs back to clear state
     nameInput.value = '';
     sizeInput.value = '';
     contactInput.value = '';
 
-    // Refresh layout views
-    updateQueueDisplay();
+    // Synchronize updates across all interface templates
+    renderWaitlist();
+    updateCustomerDropdown();
 }
 
 /**
- * Loops through the array and generates the HTML view.
+ * Iterates over current active array collections to paint clean queue templates
  */
-function updateQueueDisplay() {
-    const listElement = document.getElementById('queueList');
-    const counterElement = document.getElementById('queueCount');
-    
-    // Clear old list rows out before rebuilding
-    listElement.innerHTML = '';
-    
-    // Update the live header counter indicator
-    counterElement.textContent = waitingList.length;
+function renderWaitlist() {
+    const queueList = document.getElementById('queueList');
+    const queueCount = document.getElementById('queueCount');
+    const currentQueueStat = document.getElementById('currentQueue');
+    const totalCustTodayStat = document.getElementById('totalCustToday');
 
-    // Show a clean placeholder text if no one is waiting
+    queueList.innerHTML = ''; // Wipe prior rows cleanly
+
     if (waitingList.length === 0) {
-        listElement.innerHTML = `<li class="empty-list-msg">No customers currently in the queue.</li>`;
-        updateMetrics();
+        queueList.innerHTML = '<li class="empty-list-msg">No customers currently in the queue.</li>';
+        queueCount.innerText = "0";
+        currentQueueStat.innerText = "0";
         return;
     }
 
-    // Generate functional rows for each customer card object
+    // Paint active line templates row by row
     waitingList.forEach((customer, index) => {
         const li = document.createElement('li');
         
-        li.innerHTML = `
+        // Contextual styling swap: Highlight blue if kitchen order is attached
+        if (customer.receipt) {
+            li.style.borderLeftColor = "#3498db";
+        }
+
+        // Left-side client info card markup
+        let clientInfoHTML = `
             <div class="order-info">
-                <strong>${customer.name} (Party of ${customer.size})</strong>
+                <strong>${index + 1}. ${customer.name} (Party of ${customer.size})</strong>
                 <p>📞 Contact: ${customer.contact}</p>
-                <p>⏰ Joined: ${customer.joinedAt.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</p>
-            </div>
-            <div class="order-actions">
-                <button class="btn-serve" onclick="serveCustomer(${customer.id})">Serve</button>
-                <button class="btn-remove" onclick="removeCustomer(${customer.id})">Remove</button>
-            </div>
         `;
+
+        // If kitchen order exists, attach status badges and order metadata summary
+        if (customer.receipt) {
+            clientInfoHTML += `
+                <p style="color: #27ae60; font-weight: bold; margin-top: 4px;">
+                    🍳 Order #${customer.receipt.orderNum} sent to Kitchen (${customer.receipt.timestamp})
+                </p>
+                <p style="font-size: 12px; color: #475569; font-style: italic;">
+                    Items: ${customer.receipt.items.join(', ')}
+                </p>
+            `;
+        }
+        clientInfoHTML += `</div>`;
+
+        // Right-side structural operational buttons
+        let actionsHTML = `<div class="order-actions">`;
         
-        listElement.appendChild(li);
+        if (customer.receipt) {
+            // Action swap rule: If an order has been tracked, view full breakdown invoice modal
+            actionsHTML += `
+                <button class="btn-serve" onclick="openReceiptModal(${customer.id})">📄 View Receipt</button>
+            `;
+        }
+        
+        // Standard checkout / close out operations button
+        actionsHTML += `
+            <button class="btn-remove" onclick="removeCustomer(${customer.id})">❌ Complete</button>
+        </div>`;
+
+        li.innerHTML = clientInfoHTML + actionsHTML;
+        queueList.appendChild(li);
     });
 
-    // Sync metrics dashboard display layout
-    updateMetrics();
-}
-
-/**
- * Processes serving a customer and computes cumulative average wait durations.
- */
-function serveCustomer(id) {
-    const index = waitingList.findIndex(c => c.id === id);
-    if (index !== -1) {
-        const servedCustomer = waitingList[index];
-        const waitDuration = Math.round((new Date() - servedCustomer.joinedAt) / 60000); // Minutes calculation
-
-        totalWaitTime += waitDuration;
-        servedCount++;
-
-        // Remove from current queue array
-        waitingList.splice(index, 1);
-        updateQueueDisplay();
+    // Sync numeric indicator tags on management dash metrics cards
+    queueCount.innerText = waitingList.length;
+    currentQueueStat.innerText = waitingList.length;
+    
+    // Accumulate running total counts of check-ins processed natively
+    const rawTotalToday = parseInt(totalCustTodayStat.innerText) || 0;
+    if (waitingList.length > rawTotalToday) {
+        totalCustTodayStat.innerText = waitingList.length;
     }
 }
 
 /**
- * Drops a customer record completely out of the active list stack.
+ * Feeds live data arrays cleanly down into the calculator dropdown selector
  */
-function removeCustomer(id) {
-    waitingList = waitingList.filter(customer => customer.id !== id);
-    updateQueueDisplay();
+function updateCustomerDropdown() {
+    const dropdown = document.getElementById('activeCustomerSelect');
+    
+    // Save current user selection pointer index 
+    const currentSelectedValue = dropdown.value;
+
+    // Reset loop back to base fallback option block
+    dropdown.innerHTML = '<option value="">-- Assign Order to Live Customer Queue (Optional) --</option>';
+
+    // Loop through list and append dynamic active options
+    waitingList.forEach(customer => {
+        // Exclude options that already have an order attached to keep dropdown clean
+        if (!customer.receipt) {
+            const opt = document.createElement('option');
+            opt.value = customer.id;
+            opt.innerText = `${customer.name} (Party of ${customer.size})`;
+            dropdown.appendChild(opt);
+        }
+    });
+
+    // Re-assign previous selection if it still exists within unassigned queue arrays
+    dropdown.value = currentSelectedValue;
 }
 
 /**
- * Updates the dashboard elements on the interface.
+ * Handles cross-file storage bindings. Receives data packets straight from calculator.js
  */
-function updateMetrics() {
-    document.getElementById('totalCustToday').textContent = totalCustomersToday;
-    document.getElementById('currentQueue').textContent = waitingList.length;
-    
-    // Calculate accurate average minutes safely without dividing by zero
-    const average = servedCount > 0 ? Math.round(totalWaitTime / servedCount) : 0;
-    document.getElementById('avgWaitTime').textContent = `${average} min`;
+function attachReceiptToQueue(customerId, receiptData) {
+    // If no target explicit card was selected, spawn an automatic virtual walking client item tracking slot
+    if (!customerId) {
+        const virtualWalkIn = {
+            id: Date.now(),
+            name: `Walk-in (${receiptData.customerName} #${receiptData.orderNum})`,
+            size: 1,
+            contact: "N/A",
+            receipt: receiptData
+        };
+        waitingList.push(virtualWalkIn);
+    } else {
+        // Safe mapping pointer linkage binding task
+        const target = waitingList.find(c => c.id == customerId);
+        if (target) {
+            target.receipt = receiptData;
+        }
+    }
+
+    // Refresh UI templates
+    renderWaitlist();
+    updateCustomerDropdown();
+}
+
+/**
+ * Removes data item blocks from queue lists arrays cleanly
+ */
+function removeCustomer(id) {
+    waitingList = waitingList.filter(c => c.id !== id);
+    renderWaitlist();
+    updateCustomerDropdown();
+}
+
+/**
+ * Hydrates receipt markup data models out straight onto visible invoice overlay layers
+ */
+function openReceiptModal(customerId) {
+    const target = waitingList.find(c => c.id == customerId);
+    if (!target || !target.receipt) return;
+
+    const r = target.receipt;
+    const modalBody = document.getElementById('receiptModalBody');
+
+    // Build raw traditional till receipt template 
+    let receiptHTML = `
+        <h4>RESSTULIST TILL SLIP</h4>
+        <p style="text-align: center; font-size: 11px;">Powered by Naturi Web Solutions</p>
+        <div class="receipt-divider"></div>
+        <p><strong>Order No:</strong> #${r.orderNum}</p>
+        <p><strong>Customer:</strong> ${r.customerName}</p>
+        <p><strong>Time:</strong> ${r.timestamp}</p>
+        <div class="receipt-divider"></div>
+        <p><strong>ITEMS ORDERED:</strong></p>
+    `;
+
+    r.items.forEach(item => {
+        receiptHTML += `<p style="padding-left: 10px;">- ${item}</p>`;
+    });
+
+    receiptHTML += `
+        <div class="receipt-divider"></div>
+        <p>Subtotal: <span style="float: right;">${r.subtotal}</span></p>
+        <p>VAT (15%): <span style="float: right;">${r.vat}</span></p>
+        <p style="font-weight: bold; font-size: 15px; margin-top: 5px;">
+            TOTAL DUE: <span style="float: right;">${r.total}</span>
+        </p>
+        <div class="receipt-divider" style="border-top-style: dotted;"></div>
+        <p>Cash Tendered: <span style="float: right;">${r.cash}</span></p>
+        <p style="color: #e74c3c; font-weight: bold;">
+            Change Paid: <span style="float: right;">${r.change}</span>
+        </p>
+        <div class="receipt-divider"></div>
+        <h5 style="text-align: center; font-family: inherit;">THANK YOU FOR YOUR PATRONAGE!</h5>
+    `;
+
+    modalBody.innerHTML = receiptHTML;
+    document.getElementById('receiptModal').style.display = 'flex';
+}
+
+/**
+ * Flushes overlay flags to hide modal layer boxes
+ */
+function closeReceiptModal() {
+    document.getElementById('receiptModal').style.display = 'none';
 }
