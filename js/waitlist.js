@@ -55,7 +55,7 @@ function renderWaitlist() {
     if (waitingList.length === 0) {
         queueList.innerHTML = '<li class="empty-list-msg">No customers currently in the queue.</li>';
         queueCount.innerText = "0";
-        currentQueueStat.innerText = "0";
+        if (currentQueueStat) currentQueueStat.innerText = "0";
         return;
     }
 
@@ -109,12 +109,14 @@ function renderWaitlist() {
 
     // Sync numeric indicator tags on management dash metrics cards
     queueCount.innerText = waitingList.length;
-    currentQueueStat.innerText = waitingList.length;
+    if (currentQueueStat) currentQueueStat.innerText = waitingList.length;
     
     // Accumulate running total counts of check-ins processed natively
-    const rawTotalToday = parseInt(totalCustTodayStat.innerText) || 0;
-    if (waitingList.length > rawTotalToday) {
-        totalCustTodayStat.innerText = waitingList.length;
+    if (totalCustTodayStat) {
+        const rawTotalToday = parseInt(totalCustTodayStat.innerText) || 0;
+        if (waitingList.length > rawTotalToday) {
+            totalCustTodayStat.innerText = waitingList.length;
+        }
     }
 }
 
