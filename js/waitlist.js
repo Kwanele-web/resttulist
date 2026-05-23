@@ -9,14 +9,19 @@ function addCustomer() {
     const sizeInput = document.getElementById('partySize');
     const contactInput = document.getElementById('contactNo');
 
-    const name = nameInput.value.trim();
-    const size = parseInt(sizeInput.value);
-    const contact = contactInput.value.trim();
+    let name = nameInput.value.trim();
+    let size = parseInt(sizeInput.value);
+    let contact = contactInput.value.trim();
 
-    // Field integrity validations
-    if (!name || !size || !contact) {
-        alert('Please fill out all fields correctly before adding a customer.');
-        return;
+    // Apply fallback defaults if fields are empty or invalid
+    if (!name) {
+        name = "Guest";
+    }
+    if (!size || isNaN(size)) {
+        size = 1;
+    }
+    if (!contact) {
+        contact = "N/A";
     }
 
     // Build the data object structure
@@ -69,10 +74,28 @@ function renderWaitlist() {
             li.style.background = "#f0fdf4";
         }
 
+        // Calculate total items ordered if receipt exists
+        let customerDisplay = `${index + 1}. ${customer.name}`;
+        if (customer.receipt) {
+            // Parse items and calculate total quantity
+            let totalItemsCount = 0;
+            const r = customer.receipt;
+            
+            if (r.items && Array.isArray(r.items)) {
+                totalItemsCount = r.items.length;
+            } else if (r.items) {
+                totalItemsCount = Object.keys(r.items).length;
+            }
+            
+            customerDisplay += ` (${totalItemsCount} items ordered)`;
+        } else {
+            customerDisplay += ` (Party of ${customer.size})`;
+        }
+
         // Left-side client info card markup
         let clientInfoHTML = `
             <div class="order-info">
-                <strong>${index + 1}. ${customer.name} (Party of ${customer.size})</strong>
+                <strong>${customerDisplay}</strong>
                 <p>📞 Contact: ${customer.contact}</p>
         `;
 
@@ -92,13 +115,13 @@ function renderWaitlist() {
         if (customer.receipt) {
             // Action swap rule: If an order has been tracked, view full breakdown invoice modal
             actionsHTML += `
-                <button class="btn-serve" style="background:#3498db; padding:8px 14px; font-size:12px; font-weight:600; border:none; border-radius:4px; color:white; cursor:pointer;" onclick="openReceiptModal(${customer.id})">📄 View Receipt</button>
+                <button class="btn-serve" style="background:#3498db; padding:8px 14px; font-size:12px; font-weight:600; border:none; border-radius:4px; color:white; cursor:pointer;" onclick="openReceiptModal(${customer.id})">View Receipt</button>
             `;
         }
         
         // Standard checkout / close out operations button
         actionsHTML += `
-            <button class="btn-remove" style="padding: 8px 14px; font-size: 12px; font-weight: 600; border: none; border-radius: 4px; cursor: pointer; color: white;" onclick="removeCustomer(${customer.id})">❌ Complete</button>
+            <button class="btn-remove" style="padding: 8px 14px; font-size: 12px; font-weight: 600; border: none; border-radius: 4px; cursor: pointer; color: white; background: #e74c3c;" onclick="removeCustomer(${customer.id})">Remove</button>
         </div>`;
 
         li.innerHTML = clientInfoHTML + actionsHTML;
@@ -240,4 +263,3 @@ function openReceiptModal(customerId) {
 function closeReceiptModal() {
     document.getElementById('receiptModal').style.display = 'none';
 }
- Contextual 
