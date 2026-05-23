@@ -1,4 +1,4 @@
-// Internal data storage array for managing customer queue objects
+//         /// Internal data storage array for managing customer queue objects
 let waitingList = [];
 
 /**
@@ -63,9 +63,10 @@ function renderWaitlist() {
     waitingList.forEach((customer, index) => {
         const li = document.createElement('li');
         
-        // Contextual styling swap: Highlight blue if kitchen order is attached
+        // Contextual styling swap: Highlight border color if kitchen order is attached
         if (customer.receipt) {
             li.style.borderLeftColor = "#3498db";
+            li.style.background = "#f0fdf4";
         }
 
         // Left-side client info card markup
@@ -79,10 +80,7 @@ function renderWaitlist() {
         if (customer.receipt) {
             clientInfoHTML += `
                 <p style="color: #27ae60; font-weight: bold; margin-top: 4px;">
-                    🍳 Order #${customer.receipt.orderNum} sent to Kitchen (${customer.receipt.timestamp})
-                </p>
-                <p style="font-size: 12px; color: #475569; font-style: italic;">
-                    Items: ${customer.receipt.items.join(', ')}
+                    🍳 Order #${customer.receipt.orderNum} sent to Kitchen
                 </p>
             `;
         }
@@ -94,13 +92,13 @@ function renderWaitlist() {
         if (customer.receipt) {
             // Action swap rule: If an order has been tracked, view full breakdown invoice modal
             actionsHTML += `
-                <button class="btn-serve" onclick="openReceiptModal(${customer.id})">📄 View Receipt</button>
+                <button class="btn-serve" style="background:#3498db; padding:8px 14px; font-size:12px; font-weight:600; border:none; border-radius:4px; color:white; cursor:pointer;" onclick="openReceiptModal(${customer.id})">📄 View Receipt</button>
             `;
         }
         
         // Standard checkout / close out operations button
         actionsHTML += `
-            <button class="btn-remove" onclick="removeCustomer(${customer.id})">❌ Complete</button>
+            <button class="btn-remove" style="padding: 8px 14px; font-size: 12px; font-weight: 600; border: none; border-radius: 4px; cursor: pointer; color: white;" onclick="removeCustomer(${customer.id})">❌ Complete</button>
         </div>`;
 
         li.innerHTML = clientInfoHTML + actionsHTML;
@@ -125,6 +123,7 @@ function renderWaitlist() {
  */
 function updateCustomerDropdown() {
     const dropdown = document.getElementById('activeCustomerSelect');
+    if (!dropdown) return;
     
     // Save current user selection pointer index 
     const currentSelectedValue = dropdown.value;
@@ -155,7 +154,7 @@ function attachReceiptToQueue(customerId, receiptData) {
     if (!customerId) {
         const virtualWalkIn = {
             id: Date.now(),
-            name: `Walk-in (${receiptData.customerName} #${receiptData.orderNum})`,
+            name: `Walk-in Customer`,
             size: 1,
             contact: "N/A",
             receipt: receiptData
@@ -195,34 +194,40 @@ function openReceiptModal(customerId) {
 
     // Build raw traditional till receipt template 
     let receiptHTML = `
-        <h4>RESSTULIST TILL SLIP</h4>
-        <p style="text-align: center; font-size: 11px;">Powered by Naturi Web Solutions</p>
-        <div class="receipt-divider"></div>
+        <h4 style="text-align:center; margin-bottom:5px;">RESSTULIST TILL SLIP</h4>
+        <p style="text-align: center; font-size: 11px; margin-top:0;">Powered by Naturi Web Solutions</p>
+        <hr style="border: dashed 1px #cbd5e1; margin: 10px 0;">
         <p><strong>Order No:</strong> #${r.orderNum}</p>
-        <p><strong>Customer:</strong> ${r.customerName}</p>
-        <p><strong>Time:</strong> ${r.timestamp}</p>
-        <div class="receipt-divider"></div>
+        <p><strong>Customer:</strong> ${target.name}</p>
+        <hr style="border: dashed 1px #cbd5e1; margin: 10px 0;">
         <p><strong>ITEMS ORDERED:</strong></p>
     `;
 
-    r.items.forEach(item => {
-        receiptHTML += `<p style="padding-left: 10px;">- ${item}</p>`;
-    });
+    // Support object keys map iteration or array layout seamlessly
+    if (r.items && Array.isArray(r.items)) {
+        r.items.forEach(item => {
+            receiptHTML += `<p style="padding-left: 10px; margin:4px 0;">- ${item}</p>`;
+        });
+    } else if (r.items) {
+        for (const item of Object.keys(r.items)) {
+            receiptHTML += `<p style="padding-left: 10px; margin:4px 0;">- ${item}</p>`;
+        }
+    }
 
     receiptHTML += `
-        <div class="receipt-divider"></div>
-        <p>Subtotal: <span style="float: right;">${r.subtotal}</span></p>
-        <p>VAT (15%): <span style="float: right;">${r.vat}</span></p>
+        <hr style="border: dashed 1px #cbd5e1; margin: 10px 0;">
+        <p>Subtotal: <span style="float: right;">R ${parseFloat(r.subtotal).toFixed(2)}</span></p>
+        <p>VAT (15%): <span style="float: right;">R ${parseFloat(r.vat).toFixed(2)}</span></p>
         <p style="font-weight: bold; font-size: 15px; margin-top: 5px;">
-            TOTAL DUE: <span style="float: right;">${r.total}</span>
+            TOTAL DUE: <span style="float: right;">R ${parseFloat(r.total).toFixed(2)}</span>
         </p>
-        <div class="receipt-divider" style="border-top-style: dotted;"></div>
-        <p>Cash Tendered: <span style="float: right;">${r.cash}</span></p>
-        <p style="color: #e74c3c; font-weight: bold;">
-            Change Paid: <span style="float: right;">${r.change}</span>
+        <hr style="border: dashed 1px #cbd5e1; margin: 10px 0;">
+        <p>Cash Tendered: <span style="float: right;">R ${parseFloat(r.cash || 0).toFixed(2)}</span></p>
+        <p style="color: #27ae60; font-weight: bold;">
+            Change Paid: <span style="float: right;">R ${parseFloat(r.change || 0).toFixed(2)}</span>
         </p>
-        <div class="receipt-divider"></div>
-        <h5 style="text-align: center; font-family: inherit;">THANK YOU FOR YOUR PATRONAGE!</h5>
+        <hr style="border: dashed 1px #cbd5e1; margin: 10px 0;">
+        <h5 style="text-align: center; margin-top:10px;">THANK YOU FOR YOUR PATRONAGE!</h5>
     `;
 
     modalBody.innerHTML = receiptHTML;
@@ -235,3 +240,4 @@ function openReceiptModal(customerId) {
 function closeReceiptModal() {
     document.getElementById('receiptModal').style.display = 'none';
 }
+ Contextual 
