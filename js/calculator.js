@@ -107,7 +107,9 @@ function sendToKitchen() {
 
     if (assignedCustomerId) {
         // Safe cross-file lookup extraction inside waitlist.js storage
-        const targetCustomer = waitingList.find(c => c.id == assignedCustomerId);
+
+        const targetCustomer = (typeof waitingList !== 'undefined') ? waitingList.find(c => c.id == assignedCustomerId) : null;
+
         if (targetCustomer) {
             customerName = targetCustomer.name;
         }
