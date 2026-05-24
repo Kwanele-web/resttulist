@@ -115,29 +115,34 @@ function sendToKitchen() {
         }
     }
 
-    // Extract dynamic listing array of items purchased
+    // Extract dynamic listing array of items purchased (item keys only)
     let selectedItemsList = [];
     for (const item in MENU_PRICES) {
         const cb = document.getElementById(item);
         if (cb && cb.checked) {
-            selectedItemsList.push(cb.nextElementSibling.innerText);
+            selectedItemsList.push(item);
         }
     }
 
+    // Parse financial values as raw numbers
     const subtotalText = document.getElementById('subtotalPrice').innerText;
     const taxText = document.getElementById('taxPrice').innerText;
     const changeText = document.getElementById('changeDue').innerText;
+    
+    const subtotal = parseFloat(subtotalText.replace('R ', '')) || 0;
+    const vat = parseFloat(taxText.replace('R ', '')) || 0;
+    const changeDue = parseFloat(changeText.replace('R ', '')) || 0;
 
     // Bundle financial blueprint structure safely
     const orderReceiptData = {
         orderNum: orderCounter,
         customerName: customerName,
         items: selectedItemsList,
-        subtotal: subtotalText,
-        vat: taxText,
-        total: totalText,
-        cash: `R ${cashPaid.toFixed(2)}`,
-        change: changeText,
+        subtotal: subtotal,
+        vat: vat,
+        total: totalDue,
+        cash: cashPaid,
+        change: changeDue,
         timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
     };
 
