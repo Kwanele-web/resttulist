@@ -82,17 +82,25 @@ function calculateChange() {
  * Links order to queue structure and updates business metrics
  */
 function sendToKitchen() {
+    // Read and parse all financial values directly from UI elements
+    const subtotalText = document.getElementById('subtotalPrice').innerText;
+    const taxText = document.getElementById('taxPrice').innerText;
     const totalText = document.getElementById('totalPrice').innerText;
-    const totalDue = parseFloat(totalText.replace('R ', '')) || 0;
+    const changeText = document.getElementById('changeDue').innerText;
+    const cashInput = document.getElementById('cashPaid').value;
+
+    // Convert all values to clean floating point numbers
+    const subtotal = parseFloat(subtotalText.replace('R ', '').trim()) || 0;
+    const vat = parseFloat(taxText.replace('R ', '').trim()) || 0;
+    const totalDue = parseFloat(totalText.replace('R ', '').trim()) || 0;
+    const changeDue = parseFloat(changeText.replace('R ', '').trim()) || 0;
+    const cashPaid = parseFloat(cashInput) || 0;
 
     // Guard rail validation rule: block bare orders
     if (totalDue === 0) {
         alert('Please select at least one item from the menu before sending to the kitchen.');
         return;
     }
-
-    const cashInput = document.getElementById('cashPaid').value;
-    const cashPaid = parseFloat(cashInput) || 0;
 
     // Operational rule: clear payment details prior to submitting
     if (cashPaid < totalDue) {
@@ -107,7 +115,6 @@ function sendToKitchen() {
 
     if (assignedCustomerId) {
         // Safe cross-file lookup extraction inside waitlist.js storage
-
         const targetCustomer = (typeof waitingList !== 'undefined') ? waitingList.find(c => c.id == assignedCustomerId) : null;
 
         if (targetCustomer) {
@@ -124,16 +131,7 @@ function sendToKitchen() {
         }
     }
 
-    // Parse financial values as raw numbers
-    const subtotalText = document.getElementById('subtotalPrice').innerText;
-    const taxText = document.getElementById('taxPrice').innerText;
-    const changeText = document.getElementById('changeDue').innerText;
-    
-    const subtotal = parseFloat(subtotalText.replace('R ', '')) || 0;
-    const vat = parseFloat(taxText.replace('R ', '')) || 0;
-    const changeDue = parseFloat(changeText.replace('R ', '')) || 0;
-
-    // Bundle financial blueprint structure safely
+    // Bundle financial blueprint structure with clean numeric values
     const orderReceiptData = {
         orderNum: orderCounter,
         customerName: customerName,
