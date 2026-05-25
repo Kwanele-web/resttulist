@@ -1,0 +1,22 @@
+{
+  "name": "Resttulist Queue Manager",
+  "short_name": "Resttulist",
+  "description": "Smart operational queue and till calculator for local Kasi outlets.",
+  "start_url": "./index.html?utm_source=pwa",
+  "display": "standalone",
+  "background_color": "#2c3e50",
+  "theme_color": "#2c3e50",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "https://img.icons8.com/fluency/192/restaurant.png",
+      "type": "image/png",
+      "sizes": "192x192"
+    },
+    {
+      "src": "https://img.icons8.com/fluency/512/restaurant.png",
+      "type": "image/png",
+      "sizes": "512x512"
+    }
+  ]
+}
