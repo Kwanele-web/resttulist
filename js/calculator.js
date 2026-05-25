@@ -4,15 +4,176 @@ let orderCounter = 1;
 let globalRevenue = 0;
 let globalOrdersCompleted = 0;
 
-// Centralized pricing architecture
-const MENU_PRICES = {
-    burger: 45.00,
-    pizza: 75.00,
-    chips: 20.00,
-    soda: 15.00,
-    coffee: 18.00,
-    dessert: 30.00
-};
+// Default menu items (will be overridden by localStorage if available)
+let menuItems = [
+    { id: 'burger', name: '🍔 Burger', price: 45.00 },
+    { id: 'pizza', name: '🍕 Pizza', price: 75.00 },
+    { id: 'chips', name: '🍟 Chips', price: 20.00 },
+    { id: 'soda', name: '🥤 Soda', price: 15.00 },
+    { id: 'coffee', name: '☕ Coffee', price: 18.00 },
+    { id: 'dessert', name: '🍰 Dessert', price: 30.00 }
+];
+
+// LocalStorage key
+const MENU_STORAGE_KEY = 'resstulist_menu';
+
+/**
+ * Initialize the calculator on page load
+ * Load menu from LocalStorage or use default
+ */
+function initializeCalculator() {
+    loadMenuFromStorage();
+    renderMenuInCalculator();
+    renderMenuAdminEditor();
+}
+
+/**
+ * Load menu items from LocalStorage
+ * Falls back to default menu if nothing is saved
+ */
+function loadMenuFromStorage() {
+    const savedMenu = localStorage.getItem(MENU_STORAGE_KEY);
+    if (savedMenu) {
+        try {
+            menuItems = JSON.parse(savedMenu);
+        } catch (e) {
+            console.error('Error parsing saved menu:', e);
+            menuItems = getDefaultMenuItems();
+        }
+    }
+}
+
+/**
+ * Get default menu items
+ */
+function getDefaultMenuItems() {
+    return [
+        { id: 'burger', name: '🍔 Burger', price: 45.00 },
+        { id: 'pizza', name: '🍕 Pizza', price: 75.00 },
+        { id: 'chips', name: '🍟 Chips', price: 20.00 },
+        { id: 'soda', name: '🥤 Soda', price: 15.00 },
+        { id: 'coffee', name: '☕ Coffee', price: 18.00 },
+        { id: 'dessert', name: '🍰 Dessert', price: 30.00 }
+    ];
+}
+
+/**
+ * Render menu items in calculator (checkout buttons)
+ */
+function renderMenuInCalculator() {
+    const container = document.getElementById('menuItemsContainer');
+    if (!container) return;
+    
+    container.innerHTML = '';
+    
+    menuItems.forEach(item => {
+        const div = document.createElement('div');
+        div.className = 'menu-item';
+        div.innerHTML = `
+            <label>
+                <input type="checkbox" id="item_${item.id}" onchange="calculateOrder()">
+                <span>${item.name}</span>
+            </label>
+            <span class="item-price">R ${item.price.toFixed(2)}</span>
+        `;
+        container.appendChild(div);
+    });
+}
+
+/**
+ * Render menu editor in Settings tab
+ */
+function renderMenuAdminEditor() {
+    const container = document.getElementById('menuEditorList');
+    if (!container) return;
+    
+    container.innerHTML = '';
+    
+    menuItems.forEach((item, index) => {
+        const div = document.createElement('div');
+        div.className = 'menu-item-editor';
+        div.innerHTML = `
+            <div class="menu-item-editor-row">
+                <div class="form-input-group">
+                    <label>Item Name</label>
+                    <input type="text" value="${item.name}" class="editor-name" data-index="${index}" placeholder="e.g., 🍔 Burger">
+                </div>
+                <div class="form-input-group">
+                    <label>Price (R)</label>
+                    <input type="number" value="${item.price.toFixed(2)}" class="editor-price" data-index="${index}" step="0.01" min="0" placeholder="e.g., 45.00">
+                </div>
+                <button class="btn btn-remove" onclick="deleteMenuItem(${index})">🗑️ Delete</button>
+            </div>
+        `;
+        container.appendChild(div);
+    });
+}
+
+/**
+ * Add a new menu item (in Settings tab)
+ */
+function addNewMenuItem() {
+    const newItem = {
+        id: 'item_' + Date.now(),
+        name: 'New Item',
+        price: 0.00
+    };
+    menuItems.push(newItem);
+    renderMenuAdminEditor();
+}
+
+/**
+ * Delete a menu item by index
+ */
+function deleteMenuItem(index) {
+    if (confirm('Are you sure you want to delete this item?')) {
+        menuItems.splice(index, 1);
+        renderMenuAdminEditor();
+    }
+}
+
+/**
+ * Save menu to LocalStorage and update calculator
+ */
+function saveMenuToStorage() {
+    // Collect updated values from editor inputs
+    const editorNames = document.querySelectorAll('.editor-name');
+    const editorPrices = document.querySelectorAll('.editor-price');
+    
+    editorNames.forEach((input, index) => {
+        const nameValue = input.value.trim();
+        const priceInput = editorPrices[index];
+        const priceValue = parseFloat(priceInput.value) || 0;
+        
+        if (menuItems[index]) {
+            menuItems[index].name = nameValue || 'Item';
+            menuItems[index].price = priceValue;
+        }
+    });
+    
+    // Save to LocalStorage
+    localStorage.setItem(MENU_STORAGE_KEY, JSON.stringify(menuItems));
+    
+    // Update calculator UI immediately
+    renderMenuInCalculator();
+    calculateOrder();
+    
+    // Show success message
+    showSuccessMessage();
+}
+
+/**
+ * Show success message in Settings tab
+ */
+function showSuccessMessage() {
+    const msg = document.getElementById('successMessage');
+    if (msg) {
+        msg.classList.add('show');
+        setTimeout(() => {
+            msg.classList.remove('show');
+        }, 3000);
+    }
+}
 
 /**
  * Calculates current selected items breakdown and updates UI
@@ -24,24 +185,24 @@ function calculateOrder() {
 
     let itemsSelected = false;
 
-    // Loop through menu keys to evaluate active checkmarks
-    for (const item in MENU_PRICES) {
-        const checkbox = document.getElementById(item);
+    // Loop through menu items to evaluate active checkmarks
+    menuItems.forEach(item => {
+        const checkbox = document.getElementById('item_' + item.id);
         if (checkbox && checkbox.checked) {
             itemsSelected = true;
-            const price = MENU_PRICES[item];
+            const price = item.price;
             subtotal += price;
 
             // Generate clean UI summary item row
             const row = document.createElement('div');
             row.className = 'summary-item';
             row.innerHTML = `
-                <span>${checkbox.nextElementSibling.innerText}</span>
+                <span>${item.name}</span>
                 <span class="item-price">R ${price.toFixed(2)}</span>
             `;
             summaryContainer.appendChild(row);
         }
-    }
+    });
 
     // Fallback display if summary dashboard is bare
     if (!itemsSelected) {
@@ -126,14 +287,14 @@ function sendToKitchen() {
         }
     }
 
-    // Extract dynamic listing array of items purchased (item keys only)
+    // Extract dynamic listing array of items purchased
     let selectedItemsList = [];
-    for (const item in MENU_PRICES) {
-        const cb = document.getElementById(item);
+    menuItems.forEach(item => {
+        const cb = document.getElementById('item_' + item.id);
         if (cb && cb.checked) {
-            selectedItemsList.push(item);
+            selectedItemsList.push(item.name);
         }
-    }
+    });
 
     // Bundle financial blueprint structure with clean numeric values
     // Use the unique orderNum from waiting list or generate new one for walk-ins
@@ -183,11 +344,14 @@ function updateFinancialDOM() {
  * Flushes active form metrics back to zero clean slate
  */
 function resetCalculator() {
-    for (const item in MENU_PRICES) {
-        const cb = document.getElementById(item);
+    menuItems.forEach(item => {
+        const cb = document.getElementById('item_' + item.id);
         if (cb) cb.checked = false;
-    }
+    });
     document.getElementById('cashPaid').value = '';
     document.getElementById('activeCustomerSelect').selectedIndex = 0;
     calculateOrder();
 }
+
+// Initialize calculator on page load
+window.addEventListener('DOMContentLoaded', initializeCalculator);
