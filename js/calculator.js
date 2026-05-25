@@ -80,6 +80,7 @@ function calculateChange() {
 
 /**
  * Links order to queue structure and updates business metrics
+ * Uses the customer's unique orderNum from waitlist for receipt generation
  */
 function sendToKitchen() {
     // Read and parse all financial values directly from UI elements
@@ -112,6 +113,7 @@ function sendToKitchen() {
     const customerSelect = document.getElementById('activeCustomerSelect');
     const assignedCustomerId = customerSelect.value;
     let customerName = "Walk-in Customer";
+    let orderNumForReceipt = orderCounter;
 
     if (assignedCustomerId) {
         // Safe cross-file lookup extraction inside waitlist.js storage
@@ -119,6 +121,8 @@ function sendToKitchen() {
 
         if (targetCustomer) {
             customerName = targetCustomer.name;
+            // Use the customer's unique orderNum from the waiting list
+            orderNumForReceipt = targetCustomer.orderNum;
         }
     }
 
@@ -132,8 +136,9 @@ function sendToKitchen() {
     }
 
     // Bundle financial blueprint structure with clean numeric values
+    // Use the unique orderNum from waiting list or generate new one for walk-ins
     const orderReceiptData = {
-        orderNum: orderCounter,
+        orderNum: orderNumForReceipt,
         customerName: customerName,
         items: selectedItemsList,
         subtotal: subtotal,
