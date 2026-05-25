@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Resstulist - Manager</title>
+    <link rel="manifest" href="manifest.json">
     
     <style>
         /* ==========================================================================
@@ -747,7 +748,7 @@
             
             <div class="menu-admin-container">
                 <div class="menu-admin-intro">
-                    📝 <strong>Edit Your Restaurant Menu</strong> - Update item names and prices without modifying source code. Changes are saved automatically and will be visible in the calculator.
+                    📝 <strong>Edit Your Restaurant Menu</strong> - Update item names and prices without modifying source code. Changes are saved automatically and will be visible in the calcul[...]
                 </div>
 
                 <div class="success-message" id="successMessage">
@@ -779,5 +780,14 @@
     <script src="js/tabs.js"></script>
     <script src="js/waitlist.js"></script>
     <script src="js/calculator.js"></script>
+    <script>
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+          navigator.serviceWorker.register('./sw.js')
+            .then(reg => console.log('PWA Active!', reg))
+            .catch(err => console.log('PWA Registration Failed', err));
+        });
+      }
+    </script>
 </body>
 </html>
