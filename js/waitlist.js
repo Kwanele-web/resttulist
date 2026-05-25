@@ -2,6 +2,37 @@
 let waitingList = [];
 let nextOrderNum = 1; // Auto-incrementing order number for unique identification
 
+// LocalStorage key for persistence
+const WAITLIST_STORAGE_KEY = 'resstulist_waitlist';
+
+/**
+ * Initialize waitlist from LocalStorage on page load
+ * Falls back to empty array if nothing is saved
+ */
+function initializeWaitlist() {
+    const savedWaitlist = localStorage.getItem(WAITLIST_STORAGE_KEY);
+    if (savedWaitlist) {
+        try {
+            waitingList = JSON.parse(savedWaitlist);
+            // Re-calculate nextOrderNum based on highest orderNum in persisted data
+            if (waitingList.length > 0) {
+                const maxOrderNum = Math.max(...waitingList.map(c => c.orderNum));
+                nextOrderNum = maxOrderNum + 1;
+            }
+        } catch (e) {
+            console.error('Error parsing saved waitlist:', e);
+            waitingList = [];
+        }
+    }
+}
+
+/**
+ * Saves waitlist to LocalStorage
+ */
+function saveWaitlistToStorage() {
+    localStorage.setItem(WAITLIST_STORAGE_KEY, JSON.stringify(waitingList));
+}
+
 /**
  * Adds a new party to the queue system array and builds out UI views
  */
@@ -40,6 +71,9 @@ function addCustomer() {
 
     // Push into global cache array
     waitingList.push(customerObj);
+
+    // Save to LocalStorage immediately
+    saveWaitlistToStorage();
 
     // Flush form inputs back to clear state
     nameInput.value = '';
@@ -120,13 +154,13 @@ function renderWaitlist() {
         if (customer.receipt) {
             // Action swap rule: If an order has been tracked, view full breakdown invoice modal
             actionsHTML += `
-                <button class="btn-serve" style="background:#3498db; padding:8px 14px; font-size:12px; font-weight:600; border:none; border-radius:4px; color:white; cursor:pointer;" onclick="openReceiptModal('${customer.id}')">View Receipt</button>
+                <button class="btn-serve" style="background:#3498db; padding:8px 14px; font-size:12px; font-weight:600; border:none; border-radius:4px; color:white; cursor:pointer;" onclick="openReceiptModal(${customer.id})">📋 View Receipt</button>
             `;
         }
         
         // Standard checkout / close out operations button
         actionsHTML += `
-            <button class="btn-remove" style="padding: 8px 14px; font-size: 12px; font-weight: 600; border: none; border-radius: 4px; cursor: pointer; color: white; background: #e74c3c;" onclick="removeCustomer('${customer.id}')">Clear Table</button>
+            <button class="btn-remove" style="padding: 8px 14px; font-size: 12px; font-weight: 600; border: none; border-radius: 4px; cursor: pointer; color: white; background: #e74c3c;" onclick="removeCustomer(${customer.id})">✖️ Remove</button>
         </div>`;
 
         li.innerHTML = clientInfoHTML + actionsHTML;
@@ -200,6 +234,9 @@ function attachReceiptToQueue(customerId, receiptData) {
         }
     }
 
+    // Save to LocalStorage immediately
+    saveWaitlistToStorage();
+
     // Refresh UI templates
     renderWaitlist();
     updateCustomerDropdown();
@@ -210,6 +247,10 @@ function attachReceiptToQueue(customerId, receiptData) {
  */
 function removeCustomer(id) {
     waitingList = waitingList.filter(c => c.id !== id);
+    
+    // Save to LocalStorage immediately
+    saveWaitlistToStorage();
+    
     renderWaitlist();
     updateCustomerDropdown();
 }
@@ -248,7 +289,7 @@ function openReceiptModal(customerId) {
     receiptHTML += `
         <hr style="border: dashed 1px #cbd5e1; margin: 10px 0;">
         <p>Subtotal: <span style="float: right;">R ${parseFloat(r.subtotal).toFixed(2)}</span></p>
-        <p>VAT (15%): <span style="float: right;">R ${parseFloat(r.vat).toFixed(2)}</span></p>
+        <p>VAT (0%): <span style="float: right;">R ${parseFloat(r.vat).toFixed(2)}</span></p>
         <p style="font-weight: bold; font-size: 15px; margin-top: 5px;">
             TOTAL DUE: <span style="float: right;">R ${parseFloat(r.total).toFixed(2)}</span>
         </p>
@@ -271,3 +312,6 @@ function openReceiptModal(customerId) {
 function closeReceiptModal() {
     document.getElementById('receiptModal').style.display = 'none';
 }
+
+// Initialize waitlist from LocalStorage on page load
+window.addEventListener('DOMContentLoaded', initializeWaitlist);
