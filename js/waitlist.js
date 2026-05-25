@@ -1,5 +1,6 @@
 //         /// Internal data storage array for managing customer queue objects
 let waitingList = [];
+let nextOrderNum = 1; // Auto-incrementing order number for unique identification
 
 /**
  * Adds a new party to the queue system array and builds out UI views
@@ -24,14 +25,18 @@ function addCustomer() {
         contact = "N/A";
     }
 
-    // Build the data object structure
+    // Build the data object structure with unique order number
     const customerObj = {
         id: Date.now(), // Unique ID milestone tag
+        orderNum: nextOrderNum, // Auto-incrementing order number for unique identification
         name: name,
         size: size,
         contact: contact,
         receipt: null   // Holds order data packet when sent from calculator
     };
+
+    // Increment order number for next customer
+    nextOrderNum += 1;
 
     // Push into global cache array
     waitingList.push(customerObj);
@@ -75,7 +80,7 @@ function renderWaitlist() {
         }
 
         // Calculate total items ordered if receipt exists
-        let customerDisplay = `${index + 1}. ${customer.name}`;
+        let customerDisplay = `Order #${customer.orderNum} - ${customer.name}`;
         if (customer.receipt) {
             // Parse items and calculate total quantity
             let totalItemsCount = 0;
@@ -115,13 +120,13 @@ function renderWaitlist() {
         if (customer.receipt) {
             // Action swap rule: If an order has been tracked, view full breakdown invoice modal
             actionsHTML += `
-                <button class="btn-serve" style="background:#3498db; padding:8px 14px; font-size:12px; font-weight:600; border:none; border-radius:4px; color:white; cursor:pointer;" onclick="openReceiptModal(${customer.id})">View Receipt</button>
+                <button class="btn-serve" style="background:#3498db; padding:8px 14px; font-size:12px; font-weight:600; border:none; border-radius:4px; color:white; cursor:pointer;" onclick="openReceiptModal('${customer.id}')">View Receipt</button>
             `;
         }
         
         // Standard checkout / close out operations button
         actionsHTML += `
-            <button class="btn-remove" style="padding: 8px 14px; font-size: 12px; font-weight: 600; border: none; border-radius: 4px; cursor: pointer; color: white; background: #e74c3c;" onclick="removeCustomer(${customer.id})">Remove</button>
+            <button class="btn-remove" style="padding: 8px 14px; font-size: 12px; font-weight: 600; border: none; border-radius: 4px; cursor: pointer; color: white; background: #e74c3c;" onclick="removeCustomer('${customer.id}')">Clear Table</button>
         </div>`;
 
         li.innerHTML = clientInfoHTML + actionsHTML;
@@ -143,6 +148,7 @@ function renderWaitlist() {
 
 /**
  * Feeds live data arrays cleanly down into the calculator dropdown selector
+ * Maps customer's queue number alongside their name/details
  */
 function updateCustomerDropdown() {
     const dropdown = document.getElementById('activeCustomerSelect');
@@ -154,13 +160,14 @@ function updateCustomerDropdown() {
     // Reset loop back to base fallback option block
     dropdown.innerHTML = '<option value="">-- Assign Order to Live Customer Queue (Optional) --</option>';
 
-    // Loop through list and append dynamic active options
+    // Loop through list and append dynamic active options with unique order number
     waitingList.forEach(customer => {
         // Exclude options that already have an order attached to keep dropdown clean
         if (!customer.receipt) {
             const opt = document.createElement('option');
             opt.value = customer.id;
-            opt.innerText = `${customer.name} (Party of ${customer.size})`;
+            // Display format: "Order #X - [Customer Name] (Party of [Size])"
+            opt.innerText = `Order #${customer.orderNum} - ${customer.name} (Party of ${customer.size})`;
             dropdown.appendChild(opt);
         }
     });
@@ -177,11 +184,13 @@ function attachReceiptToQueue(customerId, receiptData) {
     if (!customerId) {
         const virtualWalkIn = {
             id: Date.now(),
-            name: `Walk-in Customer`,
+            orderNum: nextOrderNum, // Auto-incrementing order number for walk-in customers too
+            name: `Guest Party ${nextOrderNum}`,
             size: 1,
             contact: "N/A",
             receipt: receiptData
         };
+        nextOrderNum += 1;
         waitingList.push(virtualWalkIn);
     } else {
         // Safe mapping pointer linkage binding task
@@ -220,8 +229,7 @@ function openReceiptModal(customerId) {
         <h4 style="text-align:center; margin-bottom:5px;">RESSTULIST TILL SLIP</h4>
         <p style="text-align: center; font-size: 11px; margin-top:0;">Powered by Naturi Web Solutions</p>
         <hr style="border: dashed 1px #cbd5e1; margin: 10px 0;">
-        <p><strong>Order No:</strong> #${r.orderNum}</p>
-        <p><strong>Customer:</strong> ${target.name}</p>
+        <p><strong>Order #${target.orderNum}</strong> - <strong>${target.name}</strong></p>
         <hr style="border: dashed 1px #cbd5e1; margin: 10px 0;">
         <p><strong>ITEMS ORDERED:</strong></p>
     `;
