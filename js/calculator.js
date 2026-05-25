@@ -209,8 +209,8 @@ function calculateOrder() {
         summaryContainer.innerHTML = '<p class="empty-summary-msg">No items selected yet.</p>';
     }
 
-    // Process exact VAT metrics (South African standard: 15%)
-    const vatAmount = subtotal * 0.15;
+    // VAT is now 0% (removed tax overhead)
+    const vatAmount = 0;
     const totalDue = subtotal + vatAmount;
 
     // Update financial fields in real-time
