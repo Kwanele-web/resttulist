@@ -82,6 +82,7 @@
         .nav-buttons {
             display: flex;
             gap: 10px;
+            flex-wrap: wrap;
         }
 
         .nav-btn {
@@ -437,6 +438,106 @@
         }
 
         /* ==========================================================================
+           7. MENU ADMIN / SETTINGS TAB STYLES
+           ========================================================================== */
+        .menu-admin-container {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            border: 1px solid #e2e8f0;
+        }
+
+        .menu-admin-intro {
+            background: #e3f2fd;
+            border-left: 4px solid #2196f3;
+            padding: 15px;
+            border-radius: 6px;
+            margin-bottom: 25px;
+            color: #1565c0;
+            font-size: 14px;
+        }
+
+        .menu-item-editor {
+            background: #ffffff;
+            padding: 18px;
+            border-radius: 8px;
+            border: 1px solid #e2e8f0;
+            margin-bottom: 15px;
+        }
+
+        .menu-item-editor-row {
+            display: grid;
+            grid-template-columns: 2fr 1fr auto;
+            gap: 15px;
+            align-items: end;
+        }
+
+        .form-input-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .form-input-group label {
+            font-size: 13px;
+            font-weight: 600;
+            color: #475569;
+            margin-bottom: 6px;
+        }
+
+        .form-input-group input {
+            padding: 12px;
+            border: 1px solid #cbd5e1;
+            border-radius: 6px;
+            font-size: 14px;
+            outline: none;
+            background: white;
+        }
+
+        .form-input-group input:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .menu-item-editor-row .btn-remove {
+            padding: 10px 16px;
+            font-size: 13px;
+        }
+
+        .menu-admin-actions {
+            display: flex;
+            gap: 12px;
+            margin-top: 25px;
+            flex-wrap: wrap;
+        }
+
+        .btn-save-menu {
+            flex: 1;
+            min-width: 150px;
+            padding: 14px 24px;
+            font-size: 15px;
+            font-weight: 700;
+        }
+
+        .btn-add-item {
+            flex: 1;
+            min-width: 150px;
+        }
+
+        .success-message {
+            background: #d4edda;
+            color: #155724;
+            padding: 15px;
+            border-radius: 6px;
+            margin-bottom: 15px;
+            border: 1px solid #c3e6cb;
+            display: none;
+        }
+
+        .success-message.show {
+            display: block;
+        }
+
+        /* ==========================================================================
            8. RECEIPT MODAL POP-UP WINDOW STYLES
            ========================================================================== */
         .modal-overlay {
@@ -493,11 +594,23 @@
                 flex-direction: column;
                 text-align: center;
             }
+            .menu-item-editor-row {
+                grid-template-columns: 1fr;
+            }
+            .nav-buttons {
+                justify-content: center;
+            }
         }
 
         @media (max-width: 520px) {
             .calculator-buttons {
                 grid-template-columns: 1fr;
+            }
+            .menu-admin-actions {
+                flex-direction: column;
+            }
+            .btn-save-menu, .btn-add-item {
+                width: 100%;
             }
         }
     </style>
@@ -516,6 +629,7 @@
             <div class="nav-buttons">
                 <button class="nav-btn active" onclick="showTab('waitingList')">📋 Waiting List</button>
                 <button class="nav-btn" onclick="showTab('calculator')">🧮 Calculator</button>
+                <button class="nav-btn" onclick="showTab('menuAdmin')">⚙️ Menu Settings</button>
             </div>
         </div>
 
@@ -580,49 +694,8 @@
             <div class="calculator-container">
                 <div class="menu-section">
                     <h3>Select Items</h3>
-                    <div class="menu-items">
-                        <div class="menu-item">
-                            <label>
-                                <input type="checkbox" id="burger" onchange="calculateOrder()">
-                                <span>🍔 Burger</span>
-                            </label>
-                            <span class="item-price">R 45.00</span>
-                        </div>
-                        <div class="menu-item">
-                            <label>
-                                <input type="checkbox" id="pizza" onchange="calculateOrder()">
-                                <span>🍕 Pizza</span>
-                            </label>
-                            <span class="item-price">R 75.00</span>
-                        </div>
-                        <div class="menu-item">
-                            <label>
-                                <input type="checkbox" id="chips" onchange="calculateOrder()">
-                                <span>🍟 Chips</span>
-                            </label>
-                            <span class="item-price">R 20.00</span>
-                        </div>
-                        <div class="menu-item">
-                            <label>
-                                <input type="checkbox" id="soda" onchange="calculateOrder()">
-                                <span>🥤 Soda</span>
-                            </label>
-                            <span class="item-price">R 15.00</span>
-                        </div>
-                        <div class="menu-item">
-                            <label>
-                                <input type="checkbox" id="coffee" onchange="calculateOrder()">
-                                <span>☕ Coffee</span>
-                            </label>
-                            <span class="item-price">R 18.00</span>
-                        </div>
-                        <div class="menu-item">
-                            <label>
-                                <input type="checkbox" id="dessert" onchange="calculateOrder()">
-                                <span>🍰 Dessert</span>
-                            </label>
-                            <span class="item-price">R 30.00</span>
-                        </div>
+                    <div class="menu-items" id="menuItemsContainer">
+                        <!-- Dynamically populated from calculator.js -->
                     </div>
                 </div>
 
@@ -667,6 +740,30 @@
                 </div>
             </div>
         </div>
+
+        <!-- Menu Admin / Settings Tab Panel -->
+        <div id="menuAdmin" class="tab-content">
+            <h2>⚙️ Menu Management</h2>
+            
+            <div class="menu-admin-container">
+                <div class="menu-admin-intro">
+                    📝 <strong>Edit Your Restaurant Menu</strong> - Update item names and prices without modifying source code. Changes are saved automatically and will be visible in the calculator.
+                </div>
+
+                <div class="success-message" id="successMessage">
+                    ✅ Menu saved successfully! Changes are now active in the calculator.
+                </div>
+
+                <div id="menuEditorList">
+                    <!-- Dynamically populated from calculator.js -->
+                </div>
+
+                <div class="menu-admin-actions">
+                    <button class="btn btn-primary btn-add-item" onclick="addNewMenuItem()">➕ Add New Item</button>
+                    <button class="btn btn-success btn-save-menu" onclick="saveMenuToStorage()">💾 Save Menu</button>
+                </div>
+            </div>
+        </div>
     </div>
 
     <!-- Hidden Till-Slip Receipt Modal Pop-up -->
@@ -684,5 +781,3 @@
     <script src="js/calculator.js"></script>
 </body>
 </html>
-
-gggdd
