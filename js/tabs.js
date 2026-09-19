@@ -4,20 +4,20 @@
    ========================================================================== */
 
 function showTab(tabName) {
-    // 1. Hide all tab content screens by removing their 'active' CSS class
     const tabContents = document.querySelectorAll('.tab-content');
     tabContents.forEach(tab => tab.classList.remove('active'));
 
-    // 2. De-highlight all navigation buttons by removing their 'active' class
     const navBtns = document.querySelectorAll('.nav-btn');
     navBtns.forEach(btn => btn.classList.remove('active'));
 
-    // 3. Make the selected tab screen visible
-    document.getElementById(tabName).classList.add('active');
+    const selectedTab = document.getElementById(tabName);
+    if (selectedTab) selectedTab.classList.add('active');
 
-    // 4. Highlight the correct button cleanly using its attribute
-    const targetBtn = Array.from(navBtns).find(btn => btn.getAttribute('onclick').includes(tabName));
-    if (targetBtn) {
-        targetBtn.classList.add('active');
-    }
+    const targetBtn = Array.from(navBtns).find(btn =>
+        (btn.getAttribute('onclick') || '').includes(tabName)
+    );
+    if (targetBtn) targetBtn.classList.add('active');
 }
+
+// Load the modular menu controller without replacing the existing application.
+import('../app.js').catch(error => console.error('Modular menu failed to load:', error));
